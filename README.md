@@ -39,6 +39,6 @@ Other useful commands:
 Import secret key and trust ultimate:  
 `gpg --import private.key`  
 `gpg --edit-key {KEY ID} trust quit`  
-# enter 5<RETURN>  
-# enter y<RETURN>  
+enter 5<RETURN>  
+enter y<RETURN>  
 `gpg --list-keys`
