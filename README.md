@@ -65,5 +65,7 @@ As root: `crontab -e`
 Add  
 ```
 0  *	* * *	/root/backup_db_to_jotta.sh  # Backup Synapse database every hour on the dot.
-10  *	* * *	/root/backup_media_to_jotta.sh  # Backup new media files since last backup ten minutes past every hour.
-```
+10  *	* * *	/root/backup_media_to_jotta.sh  # Backup new Synapse media files since last backup ten minutes past every hour.
+```  
+
+Media is backed up ten past every hour to lessen the resource use by not doing both simultaneously.
