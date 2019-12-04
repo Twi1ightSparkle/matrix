@@ -4,6 +4,12 @@ Securely backup synapse to Jottacloud. A cheap cloud storage provider with unlim
 https://www.jottacloud.com/en/
 
 ## Setup
+
+### Install Jottacloud
+https://docs.jottacloud.com/en/articles/1436855-jottacloud-cli-for-linux-debian-packages
+jotta-cli login
+
+### Create PGP keys
 On your PC:  
 `gpg --full-generate-key`  
 `1`  
@@ -22,12 +28,10 @@ On your PC:
 Copy matrix-backup-public.gpg to the Synapse server  
 Save both keys somewhere secure, then delete them from tour local machine.
 
-
 On server:  
 `gpg --import matrix-backup-public.gpg`  
 `gpg --list-keys`  
 `rm matrix-backup-public.gpg`
-
 
 Other useful commands:  
 `gpg --decrypt-files /path/to/file`  
@@ -35,10 +39,17 @@ Other useful commands:
 `gpg --delete-secret-key ID`  
 `gpg --delete-secret-and-public-key ID`
 
-
 Import secret key and trust ultimate:  
 `gpg --import private.key`  
 `gpg --edit-key {KEY ID} trust quit`  
-enter 5<RETURN>  
-enter y<RETURN>  
+`5`  
+`y`  
 `gpg --list-keys`
+
+# backup_db_to_jotta.sh
+Export, encrypt and back up the PostgreSQL database to Jottacloud.
+
+# backup_media_to_jotta.sh
+Encrypt and back all media files to Jottacloud.  
+By default it take all files created the last 65 minutes. The extra five minutes to make sure no files are missed.  
+The first time you want to run the script manuallt with the -f option. This backs up all media files, not just the last hour.
