@@ -1,12 +1,13 @@
 # Miscellaneous scripts for Matrix
 
 Securely backup synapse to Jottacloud. A cheap cloud storage provider with unlimited (upload speed reduced after 5 TB) storage.  
-https://www.jottacloud.com/en/
+https://www.jottacloud.com/en/  
+https://docs.jottacloud.com/en/articles/3271114-reduced-upload-speed
 
 ## Setup
 
 ### Install Jottacloud
-https://docs.jottacloud.com/en/articles/1436855-jottacloud-cli-for-linux-debian-packages
+https://docs.jottacloud.com/en/articles/1436855-jottacloud-cli-for-linux-debian-packages  
 jotta-cli login
 
 ### Create PGP keys
