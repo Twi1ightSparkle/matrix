@@ -77,3 +77,7 @@ Add
 ```  
 
 Media is backed up ten past every hour to lessen the resource use by not doing both simultaneously.
+
+## Restore
+Create user with same name as before
+`psql -U <username> -f /path/to/postgres_backup.bak`
