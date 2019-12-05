@@ -2,7 +2,7 @@
 
 **I take no responsibility if this in any way breaks your stuff or restore does not work. Test thoroughly to make sure it works in your environment.**
 
-Securely backup synapse to Jottacloud. A cheap cloud storage provider with unlimited (upload speed reduced after 5 TB) storage.  
+Securely backup Synapse to Jottacloud. A cheap cloud storage provider with unlimited (upload speed reduced after 5 TB) storage.  
 https://www.jottacloud.com/en/  
 https://docs.jottacloud.com/en/articles/3271114-reduced-upload-speed
 
@@ -30,8 +30,8 @@ gpg --output matrix-backup-public.gpg --armor --export <key ID>
 gpg --output matrix-backup-private.gpg --armor --export-secret-key <key ID>
 ```
 
-Copy matrix-backup-public.gpg to the Synapse server.  
-Save both keys and the password somewhere secure, then delete them from your local machine. Don't loose them as your backup will be impossible to access without the password and private key.
+Copy `matrix-backup-public.gpg` to the Synapse server.  
+Save both keys and the password somewhere secure, then delete them from your local machine. Don't lose them as your backup will be impossible to access without the password and private key.
 
 #### On server:
 ```
@@ -64,8 +64,8 @@ Change paths to reflect your setup.
 
 ## backup_media_to_jotta.sh
 Encrypt and back all media files to Jottacloud.  
-By default it take all files created the last 65 minutes. The extra five minutes to make sure no files are missed.  
-The first time you want to run the script manually with the -f option. This backs up all media files, not just the last hour.  
+By default it takes all files created in the last 65 minutes. The extra five minutes are to make sure no files are missed.  
+The first time you'll want to run the script manually with the -f option. This backs up all media files, not just those create in the last hour.  
 Change paths to reflect your setup.
 
 ## Schedule things
