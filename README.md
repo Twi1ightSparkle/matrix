@@ -1,3 +1,15 @@
 # Miscellaneous scripts for Matrix
 
-**I take no responsibility if this in any way breaks your stuff or restore does not work. Test thoroughly to make sure it works in your environment.**
+Note: Developed on macOS Catalina using zsh shell. Compatibility with other shells/OS's is not guaranteed.
+
+## create_matrix_users.py/txt
+Quickly create a bunch of users on a matrix server using the Admin API. 1500 users takes about 5 minutes
+
+## modular_check_dns_cors.sh
+Check that DNS and CORS records are correct for a Modular Homeserver.  
+Three arguments is required: hostname domain riotSubDomain  
+Example: `./modular_check_dns_cors.sh twily01-staging twily.me riot`  
+(In Mongo, the hostname here is saved under serverConfig.host)  
+
+## synapse_postgres_stuff.sql
+Misc sql commands for looking up stuff in the Synapse postgres database

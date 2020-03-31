@@ -1,7 +1,5 @@
 # Secure backup of Synapse database and media to Jottacloud
 
-**I take no responsibility if this in any way breaks your stuff or restore does not work. Test thoroughly to make sure it works in your environment.**
-
 Securely backup Synapse to Jottacloud. A cheap cloud storage provider with unlimited (upload speed reduced after 5 TB) storage.  
 https://www.jottacloud.com/en/  
 https://docs.jottacloud.com/en/articles/3271114-reduced-upload-speed
