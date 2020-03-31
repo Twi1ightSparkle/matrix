@@ -11,7 +11,7 @@ Three arguments is required: hostname domain riotSubDomain
 Example: `./modular_check_dns_cors.sh twily01-staging twily.me riot`  
 (In Mongo, the hostname here is saved under serverConfig.host)  
 
-## simulate_user_activity.py
+## simulate_user_activity.py/txt
 Quickly logs in with a bunch of users, joins a room and sends a message
 
 ## synapse_postgres_stuff.sql
