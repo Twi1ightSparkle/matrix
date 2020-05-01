@@ -3,7 +3,7 @@
 Note: Developed on macOS Catalina using zsh shell. Compatibility with other shells/OS's is not guaranteed.
 
 ## continiously_reset_passwords.py
-This has no real world uses. It is a CPU stress test for Synapse (it will likely crash your server)
+This has no real world uses. It is a CPU stress test for Synapse (it will likely crash your server). Password resets are very conputationally expensive due to the several rounds of hashing. 
 
 ## create_matrix_users.py/txt
 Quickly create a bunch of users on a matrix server using the Admin API. 1500 users takes about 5 minutes
