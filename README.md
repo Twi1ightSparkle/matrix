@@ -9,9 +9,9 @@ Quickly create a bunch of users on a matrix server using the Admin API. 1500 use
 Check that DNS and CORS records are correct for a Modular Homeserver.  
 Three arguments is required: hostname domain riotSubDomain  
 Example: `./modular_check_dns_cors.sh twily01-staging twily.me riot`  
-(In Mongo, the hostname here is saved under serverConfig.host)  
 
 ## simulate_user_activity.py/txt
+**Currently not finished and broken** I recommend you don't use it.**  
 Quickly logs in with a bunch of users, joins a room and sends a message
 
 ## synapse_postgres_stuff.sql
