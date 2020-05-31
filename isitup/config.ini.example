@@ -1,0 +1,14 @@
+[Global]
+# List of sites
+pages = ["example"]
+log_delegated_hostname = https://matrix.domain.tld
+log_user = @isitup:domain.tld
+log_token = your_access_token
+log_room = !a_room_id:domain.tld
+db_file = isitup.db
+
+[example]
+hostname = example.com
+delegated_hostname = matrix.example.com
+riot_domain = riot.example.com
+username = @uptime_monitor:example.com
