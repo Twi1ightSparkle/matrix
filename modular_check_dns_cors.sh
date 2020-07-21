@@ -24,15 +24,15 @@ fi
 riot_url="${riot}.${domain}"
 client_url="https://$domain/.well-known/matrix/client"
 server_url="https://$domain/.well-known/matrix/server"
-client_should_contain="{\"m.homeserver\":{\"base_url\":\"https://$host.modular.im\"},\"m.identity_server\":{\"base_url\":\"https://vector.im\"}}"
-server_should_contain="{\"m.server\":\"$host.modular.im:443\"}"
+client_should_contain="{\"m.homeserver\":{\"base_url\":\"https://$host.ems.host\"},\"m.identity_server\":{\"base_url\":\"https://vector.im\"}}"
+server_should_contain="{\"m.server\":\"$host.ems.host:443\"}"
 
 
 # Test CNAME corrct
 if [ ! -z $3 ]; then
     dig_command="dig +short $riot_url CNAME"
     dig_result=$(eval $dig_command)
-    cname_should_be="$host.riot.im."
+    cname_should_be="$host.element.io."
 
     if [ $dig_result = $cname_should_be ]; then
         echo -e "\e[32mCNAME is correctly configured.\e[0m"
