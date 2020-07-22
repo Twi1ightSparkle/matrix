@@ -2,11 +2,11 @@
 
 Based on the live database of a large server running Synapse 1.17.0
 
-## Table - Table of Contents
+## Table of Contents
 <!-- TOC -->
 
 - [Synapse Database Schema](#synapse-database-schema)
-    - [Table - Table of Contents](#table---table-of-contents)
+    - [Table of Contents](#table-of-contents)
     - [Table - access_tokens](#table---access_tokens)
     - [Table - account_data](#table---account_data)
     - [Table - account_data](#table---account_data-1)
