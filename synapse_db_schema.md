@@ -2,154 +2,156 @@
 
 Based on the live database of a large server running Synapse 1.17.0
 
-## Table of Contents
+## Table - Table of Contents
 <!-- TOC -->
 
 - [Synapse Database Schema](#synapse-database-schema)
-    - [Table of Contents](#table-of-contents)
-    - [access_tokens](#access_tokens)
-    - [account_data](#account_data)
-    - [account_data](#account_data-1)
-    - [account_data_max_stream_id](#account_data_max_stream_id)
-    - [account_validity](#account_validity)
-    - [application_services_state](#application_services_state)
-    - [application_services_txns](#application_services_txns)
-    - [applied_module_schemas](#applied_module_schemas)
-    - [applied_schema_deltas](#applied_schema_deltas)
-    - [appservice_room_list](#appservice_room_list)
-    - [appservice_stream_position](#appservice_stream_position)
-    - [background_updates](#background_updates)
-    - [blocked_rooms](#blocked_rooms)
-    - [cache_invalidation_stream](#cache_invalidation_stream)
-    - [cache_invalidation_stream_by_instance](#cache_invalidation_stream_by_instance)
-    - [current_state_delta_stream](#current_state_delta_stream)
-    - [current_state_events](#current_state_events)
-    - [deleted_pushers](#deleted_pushers)
-    - [destinations](#destinations)
-    - [device_federation_inbox](#device_federation_inbox)
-    - [device_federation_outbox](#device_federation_outbox)
-    - [device_inbox](#device_inbox)
-    - [device_lists_outbound_last_success](#device_lists_outbound_last_success)
-    - [device_lists_outbound_pokes](#device_lists_outbound_pokes)
-    - [device_lists_remote_cache](#device_lists_remote_cache)
-    - [device_lists_remote_extremeties](#device_lists_remote_extremeties)
-    - [device_lists_remote_resync](#device_lists_remote_resync)
-    - [device_lists_stream](#device_lists_stream)
-    - [device_max_stream_id](#device_max_stream_id)
-    - [devices](#devices)
-    - [e2e_cross_signing_keys](#e2e_cross_signing_keys)
-    - [e2e_cross_signing_signatures](#e2e_cross_signing_signatures)
-    - [e2e_device_keys_json](#e2e_device_keys_json)
-    - [e2e_one_time_keys_json](#e2e_one_time_keys_json)
-    - [e2e_room_keys](#e2e_room_keys)
-    - [e2e_room_keys_versions](#e2e_room_keys_versions)
-    - [erased_users](#erased_users)
-    - [event_auth](#event_auth)
-    - [event_backward_extremities](#event_backward_extremities)
-    - [event_edges](#event_edges)
-    - [event_expiry](#event_expiry)
-    - [event_forward_extremities](#event_forward_extremities)
-    - [event_json](#event_json)
-    - [event_labels](#event_labels)
-    - [event_push_actions](#event_push_actions)
-    - [event_push_actions_staging](#event_push_actions_staging)
-    - [event_push_summary](#event_push_summary)
-    - [event_push_summary_stream_ordering](#event_push_summary_stream_ordering)
-    - [event_reference_hashes](#event_reference_hashes)
-    - [event_relations](#event_relations)
-    - [event_reports](#event_reports)
-    - [event_search](#event_search)
-    - [event_to_state_groups](#event_to_state_groups)
-    - [events](#events)
-    - [ex_outlier_stream](#ex_outlier_stream)
-    - [federation_stream_position](#federation_stream_position)
-    - [group_attestations_remote](#group_attestations_remote)
-    - [group_attestations_renewals](#group_attestations_renewals)
-    - [group_invites](#group_invites)
-    - [group_roles](#group_roles)
-    - [group_room_categories](#group_room_categories)
-    - [group_rooms](#group_rooms)
-    - [group_summary_roles](#group_summary_roles)
-    - [group_summary_room_categories](#group_summary_room_categories)
-    - [group_summary_rooms](#group_summary_rooms)
-    - [group_summary_users](#group_summary_users)
-    - [group_users](#group_users)
-    - [groups](#groups)
-    - [local_current_membership](#local_current_membership)
-    - [local_group_membership](#local_group_membership)
-    - [local_group_updates](#local_group_updates)
-    - [local_invites](#local_invites)
-    - [local_media_repository](#local_media_repository)
-    - [local_media_repository_thumbnails](#local_media_repository_thumbnails)
-    - [local_media_repository_url_cache](#local_media_repository_url_cache)
-    - [monthly_active_users](#monthly_active_users)
-    - [open_id_tokens](#open_id_tokens)
-    - [presence](#presence)
-    - [presence_allow_inbound](#presence_allow_inbound)
-    - [presence_stream](#presence_stream)
-    - [profiles](#profiles)
-    - [public_room_list_stream](#public_room_list_stream)
-    - [push_rules](#push_rules)
-    - [push_rules_enable](#push_rules_enable)
-    - [push_rules_stream](#push_rules_stream)
-    - [pusher_throttle](#pusher_throttle)
-    - [pushers](#pushers)
-    - [ratelimit_override](#ratelimit_override)
-    - [receipts_graph](#receipts_graph)
-    - [receipts_linearized](#receipts_linearized)
-    - [received_transactions](#received_transactions)
-    - [redactions](#redactions)
-    - [rejections](#rejections)
-    - [remote_media_cache](#remote_media_cache)
-    - [remote_media_cache_thumbnails](#remote_media_cache_thumbnails)
-    - [remote_profile_cache](#remote_profile_cache)
-    - [room_account_data](#room_account_data)
-    - [room_alias_servers](#room_alias_servers)
-    - [room_aliases](#room_aliases)
-    - [room_depth](#room_depth)
-    - [room_memberships](#room_memberships)
-    - [room_retention](#room_retention)
-    - [room_stats_current](#room_stats_current)
-    - [room_stats_earliest_token](#room_stats_earliest_token)
-    - [room_stats_historical](#room_stats_historical)
-    - [room_stats_state](#room_stats_state)
-    - [room_tags](#room_tags)
-    - [room_tags_revisions](#room_tags_revisions)
-    - [rooms](#rooms)
-    - [schema_version](#schema_version)
-    - [server_keys_json](#server_keys_json)
-    - [server_signature_keys](#server_signature_keys)
-    - [state_events](#state_events)
-    - [state_group_edges](#state_group_edges)
-    - [state_groups](#state_groups)
-    - [state_groups_state](#state_groups_state)
-    - [stats_incremental_position](#stats_incremental_position)
-    - [stream_ordering_to_exterm](#stream_ordering_to_exterm)
-    - [threepid_guest_access_tokens](#threepid_guest_access_tokens)
-    - [threepid_validation_session](#threepid_validation_session)
-    - [threepid_validation_token](#threepid_validation_token)
-    - [ui_auth_sessions](#ui_auth_sessions)
-    - [ui_auth_sessions_credentials](#ui_auth_sessions_credentials)
-    - [user_daily_visits](#user_daily_visits)
-    - [user_directory](#user_directory)
-    - [user_directory_search](#user_directory_search)
-    - [user_directory_stream_pos](#user_directory_stream_pos)
-    - [user_external_ids](#user_external_ids)
-    - [user_filters](#user_filters)
-    - [user_ips](#user_ips)
-    - [user_signature_stream](#user_signature_stream)
-    - [user_stats_current](#user_stats_current)
-    - [user_stats_historical](#user_stats_historical)
-    - [user_threepid_id_server](#user_threepid_id_server)
-    - [user_threepids](#user_threepids)
-    - [users](#users)
-    - [users_in_public_rooms](#users_in_public_rooms)
-    - [users_pending_deactivation](#users_pending_deactivation)
-    - [users_who_share_private_rooms](#users_who_share_private_rooms)
+    - [Table - Table of Contents](#table---table-of-contents)
+    - [Table - access_tokens](#table---access_tokens)
+    - [Table - account_data](#table---account_data)
+    - [Table - account_data](#table---account_data-1)
+    - [Table - account_data_max_stream_id](#table---account_data_max_stream_id)
+    - [Table - account_validity](#table---account_validity)
+    - [Table - application_services_state](#table---application_services_state)
+    - [Table - application_services_txns](#table---application_services_txns)
+    - [Table - applied_module_schemas](#table---applied_module_schemas)
+    - [Table - applied_schema_deltas](#table---applied_schema_deltas)
+    - [Table - appservice_room_list](#table---appservice_room_list)
+    - [Table - appservice_stream_position](#table---appservice_stream_position)
+    - [Table - background_updates](#table---background_updates)
+    - [Table - blocked_rooms](#table---blocked_rooms)
+    - [Table - cache_invalidation_stream](#table---cache_invalidation_stream)
+    - [Table - cache_invalidation_stream_by_instance](#table---cache_invalidation_stream_by_instance)
+    - [Table - current_state_delta_stream](#table---current_state_delta_stream)
+    - [Table - current_state_events](#table---current_state_events)
+    - [Table - deleted_pushers](#table---deleted_pushers)
+    - [Table - destinations](#table---destinations)
+    - [Table - device_federation_inbox](#table---device_federation_inbox)
+    - [Table - device_federation_outbox](#table---device_federation_outbox)
+    - [Table - device_inbox](#table---device_inbox)
+    - [Table - device_lists_outbound_last_success](#table---device_lists_outbound_last_success)
+    - [Table - device_lists_outbound_pokes](#table---device_lists_outbound_pokes)
+    - [Table - device_lists_remote_cache](#table---device_lists_remote_cache)
+    - [Table - device_lists_remote_extremeties](#table---device_lists_remote_extremeties)
+    - [Table - device_lists_remote_resync](#table---device_lists_remote_resync)
+    - [Table - device_lists_stream](#table---device_lists_stream)
+    - [Table - device_max_stream_id](#table---device_max_stream_id)
+    - [Table - devices](#table---devices)
+    - [Table - e2e_cross_signing_keys](#table---e2e_cross_signing_keys)
+    - [Table - e2e_cross_signing_signatures](#table---e2e_cross_signing_signatures)
+    - [Table - e2e_device_keys_json](#table---e2e_device_keys_json)
+    - [Table - e2e_one_time_keys_json](#table---e2e_one_time_keys_json)
+    - [Table - e2e_room_keys](#table---e2e_room_keys)
+    - [Table - e2e_room_keys_versions](#table---e2e_room_keys_versions)
+    - [Table - erased_users](#table---erased_users)
+    - [Table - event_auth](#table---event_auth)
+    - [Table - event_backward_extremities](#table---event_backward_extremities)
+    - [Table - event_edges](#table---event_edges)
+    - [Table - event_expiry](#table---event_expiry)
+    - [Table - event_forward_extremities](#table---event_forward_extremities)
+    - [Table - event_json](#table---event_json)
+    - [Table - event_labels](#table---event_labels)
+    - [Table - event_push_actions](#table---event_push_actions)
+    - [Table - event_push_actions_staging](#table---event_push_actions_staging)
+    - [Table - event_push_summary](#table---event_push_summary)
+    - [Table - event_push_summary_stream_ordering](#table---event_push_summary_stream_ordering)
+    - [Table - event_reference_hashes](#table---event_reference_hashes)
+    - [Table - event_relations](#table---event_relations)
+    - [Table - event_reports](#table---event_reports)
+    - [Table - event_search](#table---event_search)
+    - [Table - event_to_state_groups](#table---event_to_state_groups)
+    - [Table - events](#table---events)
+    - [Table - ex_outlier_stream](#table---ex_outlier_stream)
+    - [Table - federation_stream_position](#table---federation_stream_position)
+    - [Table - group_attestations_remote](#table---group_attestations_remote)
+    - [Table - group_attestations_renewals](#table---group_attestations_renewals)
+    - [Table - group_invites](#table---group_invites)
+    - [Table - group_roles](#table---group_roles)
+    - [Table - group_room_categories](#table---group_room_categories)
+    - [Table - group_rooms](#table---group_rooms)
+    - [Table - group_summary_roles](#table---group_summary_roles)
+    - [Table - group_summary_room_categories](#table---group_summary_room_categories)
+    - [Table - group_summary_rooms](#table---group_summary_rooms)
+    - [Table - group_summary_users](#table---group_summary_users)
+    - [Table - group_users](#table---group_users)
+    - [Table - groups](#table---groups)
+    - [Table - local_current_membership](#table---local_current_membership)
+    - [Table - local_group_membership](#table---local_group_membership)
+    - [Table - local_group_updates](#table---local_group_updates)
+    - [Table - local_invites](#table---local_invites)
+    - [Table - local_media_repository](#table---local_media_repository)
+    - [Table - local_media_repository_thumbnails](#table---local_media_repository_thumbnails)
+    - [Table - local_media_repository_url_cache](#table---local_media_repository_url_cache)
+    - [Table - monthly_active_users](#table---monthly_active_users)
+    - [Table - open_id_tokens](#table---open_id_tokens)
+    - [Table - presence](#table---presence)
+    - [Table - presence_allow_inbound](#table---presence_allow_inbound)
+    - [Table - presence_stream](#table---presence_stream)
+    - [Table - profiles](#table---profiles)
+    - [Table - public_room_list_stream](#table---public_room_list_stream)
+    - [Table - push_rules](#table---push_rules)
+    - [Table - push_rules_enable](#table---push_rules_enable)
+    - [Table - push_rules_stream](#table---push_rules_stream)
+    - [Table - pusher_throttle](#table---pusher_throttle)
+    - [Table - pushers](#table---pushers)
+    - [Table - ratelimit_override](#table---ratelimit_override)
+    - [Table - receipts_graph](#table---receipts_graph)
+    - [Table - receipts_linearized](#table---receipts_linearized)
+    - [Table - received_transactions](#table---received_transactions)
+    - [Table - redactions](#table---redactions)
+    - [Table - rejections](#table---rejections)
+    - [Table - remote_media_cache](#table---remote_media_cache)
+    - [Table - remote_media_cache_thumbnails](#table---remote_media_cache_thumbnails)
+    - [Table - remote_profile_cache](#table---remote_profile_cache)
+    - [Table - room_account_data](#table---room_account_data)
+    - [Table - room_alias_servers](#table---room_alias_servers)
+    - [Table - room_aliases](#table---room_aliases)
+    - [Table - room_depth](#table---room_depth)
+    - [Table - room_memberships](#table---room_memberships)
+    - [Table - room_retention](#table---room_retention)
+    - [Table - room_stats_current](#table---room_stats_current)
+    - [Table - room_stats_earliest_token](#table---room_stats_earliest_token)
+    - [Table - room_stats_historical](#table---room_stats_historical)
+    - [Table - room_stats_state](#table---room_stats_state)
+    - [Table - room_tags](#table---room_tags)
+    - [Table - room_tags_revisions](#table---room_tags_revisions)
+    - [Table - rooms](#table---rooms)
+    - [Table - schema_version](#table---schema_version)
+    - [Table - server_keys_json](#table---server_keys_json)
+    - [Table - server_signature_keys](#table---server_signature_keys)
+    - [Table - state_events](#table---state_events)
+    - [Table - state_group_edges](#table---state_group_edges)
+    - [Table - state_groups](#table---state_groups)
+    - [Table - state_groups_state](#table---state_groups_state)
+    - [Table - stats_incremental_position](#table---stats_incremental_position)
+    - [Table - stream_ordering_to_exterm](#table---stream_ordering_to_exterm)
+    - [Table - threepid_guest_access_tokens](#table---threepid_guest_access_tokens)
+    - [Table - threepid_validation_session](#table---threepid_validation_session)
+    - [Table - threepid_validation_token](#table---threepid_validation_token)
+    - [Table - ui_auth_sessions](#table---ui_auth_sessions)
+    - [Table - ui_auth_sessions_credentials](#table---ui_auth_sessions_credentials)
+    - [Table - user_daily_visits](#table---user_daily_visits)
+    - [Table - user_directory](#table---user_directory)
+    - [Table - user_directory_search](#table---user_directory_search)
+    - [Table - user_directory_stream_pos](#table---user_directory_stream_pos)
+    - [Table - user_external_ids](#table---user_external_ids)
+    - [Table - user_filters](#table---user_filters)
+    - [Table - user_ips](#table---user_ips)
+    - [Table - user_signature_stream](#table---user_signature_stream)
+    - [Table - user_stats_current](#table---user_stats_current)
+    - [Table - user_stats_historical](#table---user_stats_historical)
+    - [Table - user_threepid_id_server](#table---user_threepid_id_server)
+    - [Table - user_threepids](#table---user_threepids)
+    - [Table - users](#table---users)
+    - [Table - users_in_public_rooms](#table---users_in_public_rooms)
+    - [Table - users_pending_deactivation](#table---users_pending_deactivation)
+    - [Table - users_who_share_private_rooms](#table---users_who_share_private_rooms)
+    - [Sequence - cache_invalidation_stream_seq](#sequence---cache_invalidation_stream_seq)
+    - [Sequence - state_group_id_seq](#sequence---state_group_id_seq)
 
 <!-- /TOC -->
 
-## access_tokens
+## Table - access_tokens
 |     Column     |  Type  | Collation | Nullable | Default |
 |----------------|--------|-----------|----------|---------|
 | id             | bigint |           | not null | |
@@ -165,7 +167,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "access_tokens_device_id" btree (user_id, device_id)
 
 
-## account_data
+## Table - account_data
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | user_id           | text   |           | not null | |
@@ -178,7 +180,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "account_data_stream_id" btree (user_id, stream_id)
 
 
-## account_data
+## Table - account_data
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | user_id           | text   |           | not null | |
@@ -191,7 +193,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "account_data_stream_id" btree (user_id, stream_id)
 
 
-## account_data_max_stream_id
+## Table - account_data_max_stream_id
 |  Column   |     Type     | Collation | Nullable |   Default   |
 |-----------|--------------|-----------|----------|-------------|
 | lock      | character(1) |           | not null | 'X'::bpchar
@@ -204,7 +206,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "private_user_data_max_stream_id_lock_check" CHECK (lock = 'X'::bpchar)
 
 
-## account_validity
+## Table - account_validity
 |      Column      |  Type   | Collation | Nullable | Default |
 |------------------|---------|-----------|----------|---------|
 | user_id          | text    |           | not null | |
@@ -216,7 +218,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "account_validity_pkey" PRIMARY KEY, btree (user_id)
 
 
-## application_services_state
+## Table - application_services_state
 |  Column  |         Type         | Collation | Nullable | Default |
 |----------|----------------------|-----------|----------|---------|
 | as_id    | text                 |           | not null | |
@@ -227,7 +229,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "application_services_state_pkey" PRIMARY KEY, btree (as_id)
 
 
-## application_services_txns
+## Table - application_services_txns
 |  Column   |  Type   | Collation | Nullable | Default |
 |-----------|---------|-----------|----------|---------|
 | as_id     | text    |           | not null | |
@@ -239,7 +241,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "application_services_txns_id" btree (as_id)
 
 
-## applied_module_schemas
+## Table - applied_module_schemas
 |   Column    | Type | Collation | Nullable | Default |
 |-------------|------|-----------|----------|---------|
 | module_name | text |           | not null | |
@@ -249,7 +251,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "applied_module_schemas_module_name_file_key" UNIQUE CONSTRAINT, btree (module_name, file)
 
 
-## applied_schema_deltas
+## Table - applied_schema_deltas
 | Column  |  Type   | Collation | Nullable | Default |
 |---------|---------|-----------|----------|---------|
 | version | integer |           | not null | |
@@ -259,7 +261,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "applied_schema_deltas_version_file_key" UNIQUE CONSTRAINT, btree (version, file)
 
 
-## appservice_room_list
+## Table - appservice_room_list
 |    Column     | Type | Collation | Nullable | Default |
 |---------------|------|-----------|----------|---------|
 | appservice_id | text |           | not null | |
@@ -270,7 +272,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "appservice_room_list_idx" UNIQUE, btree (appservice_id, network_id, room_id)
 
 
-## appservice_stream_position
+## Table - appservice_stream_position
 |     Column      |     Type     | Collation | Nullable |   Default   |
 |-----------------|--------------|-----------|----------|-------------|
 | lock            | character(1) |           | not null | 'X'::bpchar
@@ -283,7 +285,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "appservice_stream_position_lock_check" CHECK (lock = 'X'::bpchar)
 
 
-## background_updates
+## Table - background_updates
 |    Column     |  Type   | Collation | Nullable | Default |
 |---------------|---------|-----------|----------|---------|
 | update_name   | text    |           | not null | |
@@ -295,7 +297,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "background_updates_uniqueness" UNIQUE CONSTRAINT, btree (update_name)
 
 
-## blocked_rooms
+## Table - blocked_rooms
 | Column  | Type | Collation | Nullable | Default |
 |---------|------|-----------|----------|---------|
 | room_id | text |           | not null | |
@@ -305,7 +307,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "blocked_rooms_idx" UNIQUE, btree (room_id)
 
 
-## cache_invalidation_stream
+## Table - cache_invalidation_stream
 |     Column      |  Type  | Collation | Nullable | Default |
 |-----------------|--------|-----------|----------|---------|
 | stream_id       | bigint |           |          | |
@@ -317,7 +319,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "cache_invalidation_stream_id" btree (stream_id)
 
 
-## cache_invalidation_stream_by_instance
+## Table - cache_invalidation_stream_by_instance
 |     Column      |  Type  | Collation | Nullable | Default |
 |-----------------|--------|-----------|----------|---------|
 | stream_id       | bigint |           | not null | |
@@ -330,13 +332,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "cache_invalidation_stream_by_instance_id" UNIQUE, btree (stream_id)
 
 
-|               Sequence "public.cache_invalidation_stream_seq
-|  Type  | Start | Minimum |       Maximum       | Increment | Cycles? | Cache |
-|--------|-------|---------|---------------------|-----------|---------|-------|
-| bigint |     1 |       1 | 9223372036854775807 |         1 | no      |     1
-
-
-## current_state_delta_stream
+## Table - current_state_delta_stream
 |    Column     |  Type  | Collation | Nullable | Default |
 |---------------|--------|-----------|----------|---------|
 | stream_id     | bigint |           | not null | |
@@ -350,7 +346,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "current_state_delta_stream_idx" btree (stream_id)
 
 
-## current_state_events
+## Table - current_state_events
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | event_id   | text |           | not null | |
@@ -365,7 +361,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "current_state_events_member_index" btree (state_key) WHERE type = 'm.room.member'::text
 
 
-## deleted_pushers
+## Table - deleted_pushers
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | stream_id | bigint |           | not null | |
@@ -377,7 +373,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "deleted_pushers_stream_id" btree (stream_id)
 
 
-## destinations
+## Table - destinations
 |     Column     |  Type  | Collation | Nullable | Default |
 |----------------|--------|-----------|----------|---------|
 | destination    | text   |           | not null | |
@@ -389,7 +385,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "destinations_pkey" PRIMARY KEY, btree (destination)
 
 
-## device_federation_inbox
+## Table - device_federation_inbox
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | origin      | text   |           | not null | |
@@ -400,7 +396,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_federation_inbox_sender_id" btree (origin, message_id)
 
 
-## device_federation_outbox
+## Table - device_federation_outbox
 |    Column     |  Type  | Collation | Nullable | Default |
 |---------------|--------|-----------|----------|---------|
 | destination   | text   |           | not null | |
@@ -413,7 +409,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_federation_outbox_id" btree (stream_id)
 
 
-## device_inbox
+## Table - device_inbox
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | user_id      | text   |           | not null | |
@@ -426,7 +422,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_inbox_user_stream_id" btree (user_id, device_id, stream_id)
 
 
-## device_lists_outbound_last_success
+## Table - device_lists_outbound_last_success
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | destination | text   |           | not null | |
@@ -437,7 +433,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_lists_outbound_last_success_unique_idx" UNIQUE, btree (destination, user_id)
 
 
-## device_lists_outbound_pokes
+## Table - device_lists_outbound_pokes
 |       Column        |  Type   | Collation | Nullable | Default |
 |---------------------|---------|-----------|----------|---------|
 | destination         | text    |           | not null | |
@@ -454,7 +450,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_lists_outbound_pokes_user" btree (destination, user_id)
 
 
-## device_lists_remote_cache
+## Table - device_lists_remote_cache
 |  Column   | Type | Collation | Nullable | Default |
 |-----------|------|-----------|----------|---------|
 | user_id   | text |           | not null | |
@@ -465,7 +461,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_lists_remote_cache_unique_id" UNIQUE, btree (user_id, device_id)
 
 
-## device_lists_remote_extremeties
+## Table - device_lists_remote_extremeties
 |  Column   | Type | Collation | Nullable | Default |
 |-----------|------|-----------|----------|---------|
 | user_id   | text |           | not null | |
@@ -475,7 +471,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_lists_remote_extremeties_unique_idx" UNIQUE, btree (user_id)
 
 
-## device_lists_remote_resync
+## Table - device_lists_remote_resync
 |  Column  |  Type  | Collation | Nullable | Default |
 |----------|--------|-----------|----------|---------|
 | user_id  | text   |           | not null | |
@@ -486,7 +482,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_lists_remote_resync_ts_idx" btree (added_ts)
 
 
-## device_lists_stream
+## Table - device_lists_stream
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | stream_id | bigint |           | not null | |
@@ -498,13 +494,13 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_lists_stream_user_id" btree (user_id, device_id)
 
 
-## device_max_stream_id
+## Table - device_max_stream_id
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | stream_id | bigint |           | not null | |
 
 
-## devices
+## Table - devices
 |    Column    |  Type   | Collation | Nullable | Default |
 |--------------|---------|-----------|----------|---------|
 | user_id      | text    |           | not null | |
@@ -519,7 +515,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "device_uniqueness" UNIQUE CONSTRAINT, btree (user_id, device_id)
 
 
-## e2e_cross_signing_keys
+## Table - e2e_cross_signing_keys
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | user_id   | text   |           | not null | |
@@ -531,7 +527,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "e2e_cross_signing_keys_idx" UNIQUE, btree (user_id, keytype, stream_id)
 
 
-## e2e_cross_signing_signatures
+## Table - e2e_cross_signing_signatures
 |      Column      | Type | Collation | Nullable | Default |
 |------------------|------|-----------|----------|---------|
 | user_id          | text |           | not null | |
@@ -544,7 +540,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "e2e_cross_signing_signatures2_idx" btree (user_id, target_user_id, target_device_id)
 
 
-## e2e_device_keys_json
+## Table - e2e_device_keys_json
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | user_id     | text   |           | not null | |
@@ -556,7 +552,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "e2e_device_keys_json_uniqueness" UNIQUE CONSTRAINT, btree (user_id, device_id)
 
 
-## e2e_one_time_keys_json
+## Table - e2e_one_time_keys_json
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | user_id     | text   |           | not null | |
@@ -570,7 +566,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "e2e_one_time_keys_json_uniqueness" UNIQUE CONSTRAINT, btree (user_id, device_id, algorithm, key_id)
 
 
-## e2e_room_keys
+## Table - e2e_room_keys
 |       Column        |  Type   | Collation | Nullable | Default |
 |---------------------|---------|-----------|----------|---------|
 | user_id             | text    |           | not null | |
@@ -586,7 +582,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "e2e_room_keys_with_version_idx" UNIQUE, btree (user_id, version, room_id, session_id)
 
 
-## e2e_room_keys_versions
+## Table - e2e_room_keys_versions
 |  Column   |   Type   | Collation | Nullable | Default |
 |-----------|----------|-----------|----------|---------|
 | user_id   | text     |           | not null | |
@@ -600,7 +596,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "e2e_room_keys_versions_idx" UNIQUE, btree (user_id, version)
 
 
-## erased_users
+## Table - erased_users
 | Column  | Type | Collation | Nullable | Default |
 |---------|------|-----------|----------|---------|
 | user_id | text |           | not null | |
@@ -609,7 +605,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "erased_users_user" UNIQUE, btree (user_id)
 
 
-## event_auth
+## Table - event_auth
 |  Column  | Type | Collation | Nullable | Default |
 |----------|------|-----------|----------|---------|
 | event_id | text |           | not null | |
@@ -620,7 +616,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "evauth_edges_id" btree (event_id)
 
 
-## event_backward_extremities
+## Table - event_backward_extremities
 |  Column  | Type | Collation | Nullable | Default |
 |----------|------|-----------|----------|---------|
 | event_id | text |           | not null | |
@@ -632,7 +628,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "ev_b_extrem_room" btree (room_id)
 
 
-## event_edges
+## Table - event_edges
 |    Column     |  Type   | Collation | Nullable | Default |
 |---------------|---------|-----------|----------|---------|
 | event_id      | text    |           | not null | |
@@ -646,7 +642,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "ev_edges_prev_id" btree (prev_event_id)
 
 
-## event_expiry
+## Table - event_expiry
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | event_id  | text   |           | not null | |
@@ -657,7 +653,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_expiry_expiry_ts_idx" btree (expiry_ts)
 
 
-## event_forward_extremities
+## Table - event_forward_extremities
 |  Column  | Type | Collation | Nullable | Default |
 |----------|------|-----------|----------|---------|
 | event_id | text |           | not null | |
@@ -669,7 +665,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "ev_extrem_room" btree (room_id)
 
 
-## event_json
+## Table - event_json
 |      Column       |  Type   | Collation | Nullable | Default |
 |-------------------|---------|-----------|----------|---------|
 | event_id          | text    |           | not null | |
@@ -683,7 +679,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_json_room_id" btree (room_id)
 
 
-## event_labels
+## Table - event_labels
 |        Column        |  Type  | Collation | Nullable | Default |
 |----------------------|--------|-----------|----------|---------|
 | event_id             | text   |           | not null | |
@@ -696,7 +692,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_labels_room_id_label_idx" btree (room_id, label, topological_ordering)
 
 
-## event_push_actions
+## Table - event_push_actions
 |        Column        |         Type          | Collation | Nullable | Default |
 |----------------------|-----------------------|-----------|----------|---------|
 | room_id              | text                  |           | not null | |
@@ -718,7 +714,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_push_actions_u_highlight" btree (user_id, stream_ordering)
 
 
-## event_push_actions_staging
+## Table - event_push_actions_staging
 |  Column   |   Type   | Collation | Nullable | Default |
 |-----------|----------|-----------|----------|---------|
 | event_id  | text     |           | not null | |
@@ -731,7 +727,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_push_actions_staging_id" btree (event_id)
 
 
-## event_push_summary
+## Table - event_push_summary
 |     Column      |  Type  | Collation | Nullable | Default |
 |-----------------|--------|-----------|----------|---------|
 | user_id         | text   |           | not null | |
@@ -743,7 +739,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_push_summary_user_rm" btree (user_id, room_id)
 
 
-## event_push_summary_stream_ordering
+## Table - event_push_summary_stream_ordering
 |     Column      |     Type     | Collation | Nullable |   Default   |
 |-----------------|--------------|-----------|----------|-------------|
 | lock            | character(1) |           | not null | 'X'::bpchar
@@ -756,7 +752,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_push_summary_stream_ordering_lock_check" CHECK (lock = 'X'::bpchar)
 
 
-## event_reference_hashes
+## Table - event_reference_hashes
 |  Column   | Type  | Collation | Nullable | Default |
 |-----------|-------|-----------|----------|---------|
 | event_id  | text  |           |          | |
@@ -768,7 +764,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_reference_hashes_id" btree (event_id)
 
 
-## event_relations
+## Table - event_relations
 |     Column      | Type | Collation | Nullable | Default |
 |-----------------|------|-----------|----------|---------|
 | event_id        | text |           | not null | |
@@ -781,7 +777,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_relations_relates" btree (relates_to_id, relation_type, aggregation_key)
 
 
-## event_reports
+## Table - event_reports
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | id          | bigint |           | not null | |
@@ -796,7 +792,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_reports_pkey" PRIMARY KEY, btree (id)
 
 
-## event_search
+## Table - event_search
 |      Column      |   Type   | Collation | Nullable | Default |
 |------------------|----------|-----------|----------|---------|
 | event_id         | text     |           |          | |
@@ -813,7 +809,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_search_fts_idx" gin (vector)
 
 
-## event_to_state_groups
+## Table - event_to_state_groups
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | event_id    | text   |           | not null | |
@@ -824,7 +820,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "event_to_state_groups_sg_index" btree (state_group)
 
 
-## events
+## Table - events
 |        Column        |  Type   | Collation | Nullable | Default |
 |----------------------|---------|-----------|----------|---------|
 | stream_ordering      | integer |           | not null | |
@@ -851,7 +847,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "events_ts" btree (origin_server_ts, stream_ordering)
 
 
-## ex_outlier_stream
+## Table - ex_outlier_stream
 |        Column         |  Type  | Collation | Nullable | Default |
 |-----------------------|--------|-----------|----------|---------|
 | event_stream_ordering | bigint |           | not null | |
@@ -862,14 +858,14 @@ Based on the live database of a large server running Synapse 1.17.0
 * "ex_outlier_stream_pkey" PRIMARY KEY, btree (event_stream_ordering)
 
 
-## federation_stream_position
+## Table - federation_stream_position
 |  Column   |  Type   | Collation | Nullable | Default |
 |-----------|---------|-----------|----------|---------|
 | type      | text    |           | not null | |
 | stream_id | integer |           | not null | |
 
 
-## group_attestations_remote
+## Table - group_attestations_remote
 |      Column      |  Type  | Collation | Nullable | Default |
 |------------------|--------|-----------|----------|---------|
 | group_id         | text   |           | not null | |
@@ -883,7 +879,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_attestations_remote_v_idx" btree (valid_until_ms)
 
 
-## group_attestations_renewals
+## Table - group_attestations_renewals
 |     Column     |  Type  | Collation | Nullable | Default |
 |----------------|--------|-----------|----------|---------|
 | group_id       | text   |           | not null | |
@@ -896,7 +892,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_attestations_renewals_v_idx" btree (valid_until_ms)
 
 
-## group_invites
+## Table - group_invites
 |  Column  | Type | Collation | Nullable | Default |
 |----------|------|-----------|----------|---------|
 | group_id | text |           | not null | |
@@ -907,7 +903,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_invites_u_idx" btree (user_id)
 
 
-## group_roles
+## Table - group_roles
 |  Column   |  Type   | Collation | Nullable | Default |
 |-----------|---------|-----------|----------|---------|
 | group_id  | text    |           | not null | |
@@ -919,7 +915,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_roles_group_id_role_id_key" UNIQUE CONSTRAINT, btree (group_id, role_id)
 
 
-## group_room_categories
+## Table - group_room_categories
 |   Column    |  Type   | Collation | Nullable | Default |
 |-------------|---------|-----------|----------|---------|
 | group_id    | text    |           | not null | |
@@ -931,7 +927,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_room_categories_group_id_category_id_key" UNIQUE CONSTRAINT, btree (group_id, category_id)
 
 
-## group_rooms
+## Table - group_rooms
 |  Column   |  Type   | Collation | Nullable | Default |
 |-----------|---------|-----------|----------|---------|
 | group_id  | text    |           | not null | |
@@ -943,7 +939,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_rooms_r_idx" btree (room_id)
 
 
-## group_summary_roles
+## Table - group_summary_roles
 |   Column   |  Type  | Collation | Nullable | Default |
 |------------|--------|-----------|----------|---------|
 | group_id   | text   |           | not null | |
@@ -957,7 +953,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_summary_roles_role_order_check" CHECK (role_order > 0)
 
 
-## group_summary_room_categories
+## Table - group_summary_room_categories
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | group_id    | text   |           | not null | |
@@ -971,7 +967,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_summary_room_categories_cat_order_check" CHECK (cat_order > 0)
 
 
-## group_summary_rooms
+## Table - group_summary_rooms
 |   Column    |  Type   | Collation | Nullable | Default |
 |-------------|---------|-----------|----------|---------|
 | group_id    | text    |           | not null | |
@@ -988,7 +984,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_summary_rooms_room_order_check" CHECK (room_order > 0)
 
 
-## group_summary_users
+## Table - group_summary_users
 |   Column   |  Type   | Collation | Nullable | Default |
 |------------|---------|-----------|----------|---------|
 | group_id   | text    |           | not null | |
@@ -1001,7 +997,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_summary_users_g_idx" btree (group_id)
 
 
-## group_users
+## Table - group_users
 |  Column   |  Type   | Collation | Nullable | Default |
 |-----------|---------|-----------|----------|---------|
 | group_id  | text    |           | not null | |
@@ -1014,7 +1010,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "group_users_u_idx" btree (user_id)
 
 
-## groups
+## Table - groups
 |      Column       |  Type   | Collation | Nullable |    Default     |
 |-------------------|---------|-----------|----------|----------------|
 | group_id          | text    |           | not null | |
@@ -1029,7 +1025,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "groups_idx" UNIQUE, btree (group_id)
 
 
-## local_current_membership
+## Table - local_current_membership
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | room_id    | text |           | not null | |
@@ -1042,7 +1038,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "local_current_membership_room_idx" btree (room_id)
 
 
-## local_group_membership
+## Table - local_group_membership
 |    Column     |  Type   | Collation | Nullable | Default |
 |---------------|---------|-----------|----------|---------|
 | group_id      | text    |           | not null | |
@@ -1057,7 +1053,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "local_group_membership_u_idx" btree (user_id, group_id)
 
 
-## local_group_updates
+## Table - local_group_updates
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | stream_id | bigint |           | not null | |
@@ -1067,7 +1063,7 @@ Based on the live database of a large server running Synapse 1.17.0
 | content   | text   |           | not null | |
 
 
-## local_invites
+## Table - local_invites
 |      Column      |  Type  | Collation | Nullable | Default |
 |------------------|--------|-----------|----------|---------|
 | stream_id        | bigint |           | not null | |
@@ -1083,7 +1079,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "local_invites_id" btree (stream_id)
 
 
-## local_media_repository
+## Table - local_media_repository
 |        Column        |  Type   | Collation | Nullable | Default |
 |----------------------|---------|-----------|----------|---------|
 | media_id             | text    |           |          | |
@@ -1102,7 +1098,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "local_media_repository_url_idx" btree (created_ts) WHERE url_cache IS NOT NULL
 
 
-## local_media_repository_thumbnails
+## Table - local_media_repository_thumbnails
 |      Column      |  Type   | Collation | Nullable | Default |
 |------------------|---------|-----------|----------|---------|
 | media_id         | text    |           |          | |
@@ -1117,7 +1113,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "local_media_repository_thumbnails_media_id" btree (media_id)
 
 
-## local_media_repository_url_cache
+## Table - local_media_repository_url_cache
 |    Column     |  Type   | Collation | Nullable | Default |
 |---------------|---------|-----------|----------|---------|
 | url           | text    |           |          | |
@@ -1134,7 +1130,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "local_media_repository_url_cache_media_idx" btree (media_id)
 
 
-## monthly_active_users
+## Table - monthly_active_users
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | user_id   | text   |           | not null | |
@@ -1145,7 +1141,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "monthly_active_users_time_stamp" btree ("timestamp")
 
 
-## open_id_tokens
+## Table - open_id_tokens
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | token             | text   |           | not null | |
@@ -1157,7 +1153,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "open_id_tokens_ts_valid_until_ms" btree (ts_valid_until_ms)
 
 
-## presence
+## Table - presence
 |   Column   |         Type          | Collation | Nullable | Default |
 |------------|-----------------------|-----------|----------|---------|
 | user_id    | text                  |           | not null | |
@@ -1169,7 +1165,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "presence_user_id_key" UNIQUE CONSTRAINT, btree (user_id)
 
 
-## presence_allow_inbound
+## Table - presence_allow_inbound
 |      Column      | Type | Collation | Nullable | Default |
 |------------------|------|-----------|----------|---------|
 | observed_user_id | text |           | not null | |
@@ -1179,7 +1175,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "presence_allow_inbound_observed_user_id_observer_user_id_key" UNIQUE CONSTRAINT, btree (observed_user_id, observer_user_id)
 
 
-## presence_stream
+## Table - presence_stream
 |          Column           |  Type   | Collation | Nullable | Default |
 |---------------------------|---------|-----------|----------|---------|
 | stream_id                 | bigint  |           |          | |
@@ -1196,7 +1192,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "presence_stream_user_id" btree (user_id)
 
 
-## profiles
+## Table - profiles
 |   Column    | Type | Collation | Nullable | Default |
 |-------------|------|-----------|----------|---------|
 | user_id     | text |           | not null | |
@@ -1207,7 +1203,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "profiles_user_id_key" UNIQUE CONSTRAINT, btree (user_id)
 
 
-## public_room_list_stream
+## Table - public_room_list_stream
 |    Column     |  Type   | Collation | Nullable | Default |
 |---------------|---------|-----------|----------|---------|
 | stream_id     | bigint  |           | not null | |
@@ -1222,7 +1218,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "public_room_list_stream_rm_idx" btree (room_id, stream_id)
 
 
-## push_rules
+## Table - push_rules
 |     Column     |   Type   | Collation | Nullable | Default |
 |----------------|----------|-----------|----------|---------|
 | id             | bigint   |           | not null | |
@@ -1239,7 +1235,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "push_rules_user_name" btree (user_name)
 
 
-## push_rules_enable
+## Table - push_rules_enable
 |  Column   |   Type   | Collation | Nullable | Default |
 |-----------|----------|-----------|----------|---------|
 | id        | bigint   |           | not null | |
@@ -1253,7 +1249,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "push_rules_enable_user_name" btree (user_name)
 
 
-## push_rules_stream
+## Table - push_rules_stream
 |        Column         |   Type   | Collation | Nullable | Default |
 |-----------------------|----------|-----------|----------|---------|
 | stream_id             | bigint   |           | not null | |
@@ -1271,7 +1267,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "push_rules_stream_user_stream_id" btree (user_id, stream_id)
 
 
-## pusher_throttle
+## Table - pusher_throttle
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | pusher       | bigint |           | not null | |
@@ -1283,7 +1279,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "pusher_throttle_pkey" PRIMARY KEY, btree (pusher, room_id)
 
 
-## pushers
+## Table - pushers
 |        Column        |  Type   | Collation | Nullable | Default |
 |----------------------|---------|-----------|----------|---------|
 | id                   | bigint  |           | not null | |
@@ -1307,7 +1303,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "pushers2_app_id_pushkey_user_name_key" UNIQUE CONSTRAINT, btree (app_id, pushkey, user_name)
 
 
-## ratelimit_override
+## Table - ratelimit_override
 |       Column        |  Type  | Collation | Nullable | Default |
 |---------------------|--------|-----------|----------|---------|
 | user_id             | text   |           | not null | |
@@ -1318,7 +1314,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "ratelimit_override_idx" UNIQUE, btree (user_id)
 
 
-## receipts_graph
+## Table - receipts_graph
 |    Column    | Type | Collation | Nullable | Default |
 |--------------|------|-----------|----------|---------|
 | room_id      | text |           | not null | |
@@ -1331,7 +1327,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "receipts_graph_uniqueness" UNIQUE CONSTRAINT, btree (room_id, receipt_type, user_id)
 
 
-## receipts_linearized
+## Table - receipts_linearized
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | stream_id    | bigint |           | not null | |
@@ -1348,7 +1344,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "receipts_linearized_user" btree (user_id)
 
 
-## received_transactions
+## Table - received_transactions
 |       Column        |   Type   | Collation | Nullable | Default |
 |---------------------|----------|-----------|----------|---------|
 | transaction_id      | text     |           |          | |
@@ -1363,7 +1359,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "received_transactions_ts" btree (ts)
 
 
-## redactions
+## Table - redactions
 |    Column     |  Type   | Collation | Nullable | Default |
 |---------------|---------|-----------|----------|---------|
 | event_id      | text    |           | not null | |
@@ -1377,7 +1373,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "redactions_redacts" btree (redacts)
 
 
-## rejections
+## Table - rejections
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | event_id   | text |           | not null | |
@@ -1388,7 +1384,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "rejections_event_id_key" UNIQUE CONSTRAINT, btree (event_id)
 
 
-## remote_media_cache
+## Table - remote_media_cache
 |     Column     |  Type   | Collation | Nullable | Default |
 |----------------|---------|-----------|----------|---------|
 | media_origin   | text    |           |          | |
@@ -1405,7 +1401,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "remote_media_cache_media_origin_media_id_key" UNIQUE CONSTRAINT, btree (media_origin, media_id)
 
 
-## remote_media_cache_thumbnails
+## Table - remote_media_cache_thumbnails
 |      Column      |  Type   | Collation | Nullable | Default |
 |------------------|---------|-----------|----------|---------|
 | media_origin     | text    |           |          | |
@@ -1421,7 +1417,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "remote_media_cache_thumbnails_media_origin_media_id_thumbna_key" UNIQUE CONSTRAINT, btree (media_origin, media_id, thumbnail_width, thumbnail_height, thumbnail_type)
 
 
-## remote_profile_cache
+## Table - remote_profile_cache
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | user_id     | text   |           | not null | |
@@ -1434,7 +1430,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "remote_profile_cache_time" btree (last_check)
 
 
-## room_account_data
+## Table - room_account_data
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | user_id           | text   |           | not null | |
@@ -1448,7 +1444,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_account_data_stream_id" btree (user_id, stream_id)
 
 
-## room_alias_servers
+## Table - room_alias_servers
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | room_alias | text |           | not null | |
@@ -1458,7 +1454,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_alias_servers_alias" btree (room_alias)
 
 
-## room_aliases
+## Table - room_aliases
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | room_alias | text |           | not null | |
@@ -1470,7 +1466,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_aliases_id" btree (room_id)
 
 
-## room_depth
+## Table - room_depth
 |  Column   |  Type   | Collation | Nullable | Default |
 |-----------|---------|-----------|----------|---------|
 | room_id   | text    |           | not null | |
@@ -1481,7 +1477,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_depth_room" btree (room_id)
 
 
-## room_memberships
+## Table - room_memberships
 |    Column    |  Type   | Collation | Nullable | Default |
 |--------------|---------|-----------|----------|---------|
 | event_id     | text    |           | not null | |
@@ -1500,7 +1496,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_memberships_user_room_forgotten" btree (user_id, room_id) WHERE forgotten = 1
 
 
-## room_retention
+## Table - room_retention
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | room_id      | text   |           | not null | |
@@ -1513,7 +1509,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_retention_max_lifetime_idx" btree (max_lifetime)
 
 
-## room_stats_current
+## Table - room_stats_current
 |          Column           |  Type   | Collation | Nullable | Default |
 |---------------------------|---------|-----------|----------|---------|
 | room_id                   | text    |           | not null | |
@@ -1529,7 +1525,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_stats_current_pkey" PRIMARY KEY, btree (room_id)
 
 
-## room_stats_earliest_token
+## Table - room_stats_earliest_token
 | Column  |  Type  | Collation | Nullable | Default |
 |---------|--------|-----------|----------|---------|
 | room_id | text   |           | not null | |
@@ -1539,7 +1535,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_stats_earliest_token_idx" UNIQUE, btree (room_id)
 
 
-## room_stats_historical
+## Table - room_stats_historical
 |        Column        |  Type  | Collation | Nullable | Default |
 |----------------------|--------|-----------|----------|---------|
 | room_id              | text   |           | not null | |
@@ -1559,7 +1555,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_stats_historical_end_ts" btree (end_ts)
 
 
-## room_stats_state
+## Table - room_stats_state
 |       Column       |  Type   | Collation | Nullable | Default |
 |--------------------|---------|-----------|----------|---------|
 | room_id            | text    |           | not null | |
@@ -1577,7 +1573,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_stats_state_room" UNIQUE, btree (room_id)
 
 
-## room_tags
+## Table - room_tags
 | Column  | Type | Collation | Nullable | Default |
 |---------|------|-----------|----------|---------|
 | user_id | text |           | not null | |
@@ -1589,7 +1585,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_tag_uniqueness" UNIQUE CONSTRAINT, btree (user_id, room_id, tag)
 
 
-## room_tags_revisions
+## Table - room_tags_revisions
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | user_id   | text   |           | not null | |
@@ -1600,7 +1596,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "room_tag_revisions_uniqueness" UNIQUE CONSTRAINT, btree (user_id, room_id)
 
 
-## rooms
+## Table - rooms
 |    Column    |  Type   | Collation | Nullable | Default |
 |--------------|---------|-----------|----------|---------|
 | room_id      | text    |           | not null | |
@@ -1613,7 +1609,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "public_room_index" btree (is_public)
 
 
-## schema_version
+## Table - schema_version
 |  Column  |     Type     | Collation | Nullable |   Default   |
 |----------|--------------|-----------|----------|-------------|
 | lock     | character(1) |           | not null | 'X'::bpchar
@@ -1627,7 +1623,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "schema_version_lock_check" CHECK (lock = 'X'::bpchar)
 
 
-## server_keys_json
+## Table - server_keys_json
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | server_name       | text   |           | not null | |
@@ -1641,7 +1637,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "server_keys_json_uniqueness" UNIQUE CONSTRAINT, btree (server_name, key_id, from_server)
 
 
-## server_signature_keys
+## Table - server_signature_keys
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | server_name       | text   |           |          | |
@@ -1655,7 +1651,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "server_signature_keys_server_name_key_id_key" UNIQUE CONSTRAINT, btree (server_name, key_id)
 
 
-## state_events
+## Table - state_events
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | event_id   | text |           | not null | |
@@ -1668,7 +1664,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "state_events_event_id_key" UNIQUE CONSTRAINT, btree (event_id)
 
 
-## state_group_edges
+## Table - state_group_edges
 |      Column      |  Type  | Collation | Nullable | Default |
 |------------------|--------|-----------|----------|---------|
 | state_group      | bigint |           | not null | |
@@ -1679,13 +1675,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "state_group_edges_prev_idx" btree (prev_state_group)
 
 
-|                     Sequence "public.state_group_id_seq
-|  Type  | Start | Minimum |       Maximum       | Increment | Cycles? | Cache |
-|--------|-------|---------|---------------------|-----------|---------|-------|
-| bigint |     1 |       1 | 9223372036854775807 |         1 | no      |     1
-
-
-## state_groups
+## Table - state_groups
 |  Column  |  Type  | Collation | Nullable | Default |
 |----------|--------|-----------|----------|---------|
 | id       | bigint |           | not null | |
@@ -1697,7 +1687,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "state_groups_room_id_idx" btree (room_id)
 
 
-## state_groups_state
+## Table - state_groups_state
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | state_group | bigint |           | not null | |
@@ -1710,7 +1700,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "state_groups_state_type_idx" btree (state_group, type, state_key)
 
 
-## stats_incremental_position
+## Table - stats_incremental_position
 |  Column   |     Type     | Collation | Nullable |   Default   |
 |-----------|--------------|-----------|----------|-------------|
 | lock      | character(1) |           | not null | 'X'::bpchar
@@ -1723,7 +1713,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "stats_incremental_position_lock_check" CHECK (lock = 'X'::bpchar)
 
 
-## stream_ordering_to_exterm
+## Table - stream_ordering_to_exterm
 |     Column      |  Type  | Collation | Nullable | Default |
 |-----------------|--------|-----------|----------|---------|
 | stream_ordering | bigint |           | not null | |
@@ -1735,7 +1725,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "stream_ordering_to_exterm_rm_idx" btree (room_id, stream_ordering)
 
 
-## threepid_guest_access_tokens
+## Table - threepid_guest_access_tokens
 |       Column       | Type | Collation | Nullable | Default |
 |--------------------|------|-----------|----------|---------|
 | medium             | text |           |          | |
@@ -1747,7 +1737,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "threepid_guest_access_tokens_index" UNIQUE, btree (medium, address)
 
 
-## threepid_validation_session
+## Table - threepid_validation_session
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | session_id        | text   |           | not null | |
@@ -1761,7 +1751,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "threepid_validation_session_pkey" PRIMARY KEY, btree (session_id)
 
 
-## threepid_validation_token
+## Table - threepid_validation_token
 |   Column   |  Type  | Collation | Nullable | Default |
 |------------|--------|-----------|----------|---------|
 | token      | text   |           | not null | |
@@ -1774,7 +1764,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "threepid_validation_token_session_id" btree (session_id)
 
 
-## ui_auth_sessions
+## Table - ui_auth_sessions
 |    Column     |  Type  | Collation | Nullable | Default |
 |---------------|--------|-----------|----------|---------|
 | session_id    | text   |           | not null | |
@@ -1792,7 +1782,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * *TABLE "ui_auth_sessions_credentials" CONSTRAINT"ui_auth_sessions_credentials_session_id_fkey" FOREIGN KEY (session_id) REFERENCES ui_auth_sessions(session_id)
 
 
-## ui_auth_sessions_credentials
+## Table - ui_auth_sessions_credentials
 |   Column   | Type | Collation | Nullable | Default |
 |------------|------|-----------|----------|---------|
 | session_id | text |           | not null | |
@@ -1806,7 +1796,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "ui_auth_sessions_credentials_session_id_fkey" FOREIGN KEY (session_id) REFERENCES ui_auth_sessions(session_id)
 
 
-## user_daily_visits
+## Table - user_daily_visits
 |  Column   |  Type  | Collation | Nullable | Default |
 |-----------|--------|-----------|----------|---------|
 | user_id   | text   |           | not null | |
@@ -1818,7 +1808,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_daily_visits_uts_idx" btree (user_id, "timestamp")
 
 
-## user_directory
+## Table - user_directory
 |    Column    | Type | Collation | Nullable | Default |
 |--------------|------|-----------|----------|---------|
 | user_id      | text |           | not null | |
@@ -1831,7 +1821,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_directory_room_idx" btree (room_id)
 
 
-## user_directory_search
+## Table - user_directory_search
 | Column  |   Type   | Collation | Nullable | Default |
 |---------|----------|-----------|----------|---------|
 | user_id | text     |           | not null | |
@@ -1842,7 +1832,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_directory_search_fts_idx" gin (vector)
 
 
-## user_directory_stream_pos
+## Table - user_directory_stream_pos
 |  Column   |     Type     | Collation | Nullable |   Default   |
 |-----------|--------------|-----------|----------|-------------|
 | lock      | character(1) |           | not null | 'X'::bpchar
@@ -1855,7 +1845,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_directory_stream_pos_lock_check" CHECK (lock = 'X'::bpchar)
 
 
-## user_external_ids
+## Table - user_external_ids
 |    Column     | Type | Collation | Nullable | Default |
 |---------------|------|-----------|----------|---------|
 | auth_provider | text |           | not null | |
@@ -1866,7 +1856,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_external_ids_auth_provider_external_id_key" UNIQUE CONSTRAINT, btree (auth_provider, external_id)
 
 
-## user_filters
+## Table - user_filters
 |   Column    |  Type  | Collation | Nullable | Default |
 |-------------|--------|-----------|----------|---------|
 | user_id     | text   |           | not null | |
@@ -1877,7 +1867,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_filters_unique" UNIQUE, btree (user_id, filter_id)
 
 
-## user_ips
+## Table - user_ips
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | user_id      | text   |           | not null | |
@@ -1894,7 +1884,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_ips_last_seen_only" btree (last_seen)
 
 
-## user_signature_stream
+## Table - user_signature_stream
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | stream_id    | bigint |           | not null | |
@@ -1905,7 +1895,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_signature_stream_idx" UNIQUE, btree (stream_id)
 
 
-## user_stats_current
+## Table - user_stats_current
 |          Column           |  Type  | Collation | Nullable | Default |
 |---------------------------|--------|-----------|----------|---------|
 | user_id                   | text   |           | not null | |
@@ -1916,7 +1906,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_stats_current_pkey" PRIMARY KEY, btree (user_id)
 
 
-## user_stats_historical
+## Table - user_stats_historical
 |      Column       |  Type  | Collation | Nullable | Default |
 |-------------------|--------|-----------|----------|---------|
 | user_id           | text   |           | not null | |
@@ -1933,7 +1923,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_stats_historical_end_ts" btree (end_ts)
 
 
-## user_threepid_id_server
+## Table - user_threepid_id_server
 |  Column   | Type | Collation | Nullable | Default |
 |-----------|------|-----------|----------|---------|
 | user_id   | text |           | not null | |
@@ -1945,7 +1935,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_threepid_id_server_idx" UNIQUE, btree (user_id, medium, address, id_server)
 
 
-## user_threepids
+## Table - user_threepids
 |    Column    |  Type  | Collation | Nullable | Default |
 |--------------|--------|-----------|----------|---------|
 | user_id      | text   |           | not null | |
@@ -1960,7 +1950,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "user_threepids_user_id" btree (user_id)
 
 
-## users
+## Table - users
 |           Column           |   Type   | Collation | Nullable | Default |
 |----------------------------|----------|-----------|----------|---------|
 | name                       | text     |           |          | |
@@ -1980,7 +1970,7 @@ Based on the live database of a large server running Synapse 1.17.0
 * "users_creation_ts" btree (creation_ts)
 
 
-## users_in_public_rooms
+## Table - users_in_public_rooms
 | Column  | Type | Collation | Nullable | Default |
 |---------|------|-----------|----------|---------|
 | user_id | text |           | not null | |
@@ -1991,13 +1981,13 @@ Based on the live database of a large server running Synapse 1.17.0
 * "users_in_public_rooms_r_idx" btree (room_id)
 
 
-## users_pending_deactivation
+## Table - users_pending_deactivation
 | Column  | Type | Collation | Nullable | Default |
 |---------|------|-----------|----------|---------|
 | user_id | text |           | not null | |
 
 
-## users_who_share_private_rooms
+## Table - users_who_share_private_rooms
 |    Column     | Type | Collation | Nullable | Default |
 |---------------|------|-----------|----------|---------|
 | user_id       | text |           | not null | |
@@ -2008,3 +1998,15 @@ Based on the live database of a large server running Synapse 1.17.0
 * "users_who_share_private_rooms_u_idx" UNIQUE, btree (user_id, other_user_id, room_id)
 * "users_who_share_private_rooms_o_idx" btree (other_user_id)
 * "users_who_share_private_rooms_r_idx" btree (room_id)
+
+
+## Sequence - cache_invalidation_stream_seq
+|  Type  | Start | Minimum |       Maximum       | Increment | Cycles? | Cache |
+|--------|-------|---------|---------------------|-----------|---------|-------|
+| bigint |     1 |       1 | 9223372036854775807 |         1 | no      |     1 |
+
+
+## Sequence - state_group_id_seq
+|  Type  | Start | Minimum |       Maximum       | Increment | Cycles? | Cache |
+|--------|-------|---------|---------------------|-----------|---------|-------|
+| bigint |     1 |       1 | 9223372036854775807 |         1 | no      |     1 |
