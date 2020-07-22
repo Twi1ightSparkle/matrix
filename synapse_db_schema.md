@@ -9,7 +9,6 @@ Based on the live database of a large server running Synapse 1.17.0
     - [Table of Contents](#table-of-contents)
     - [Table - access_tokens](#table---access_tokens)
     - [Table - account_data](#table---account_data)
-    - [Table - account_data](#table---account_data-1)
     - [Table - account_data_max_stream_id](#table---account_data_max_stream_id)
     - [Table - account_validity](#table---account_validity)
     - [Table - application_services_state](#table---application_services_state)
@@ -165,19 +164,6 @@ Based on the live database of a large server running Synapse 1.17.0
 * "access_tokens_pkey" PRIMARY KEY, btree (id)
 * "access_tokens_token_key" UNIQUE CONSTRAINT, btree (token)
 * "access_tokens_device_id" btree (user_id, device_id)
-
-
-## Table - account_data
-|      Column       |  Type  | Collation | Nullable | Default |
-|-------------------|--------|-----------|----------|---------|
-| user_id           | text   |           | not null | |
-| account_data_type | text   |           | not null | |
-| stream_id         | bigint |           | not null | |
-| content           | text   |           | not null | |
-
-**Indexes**
-* "account_data_uniqueness" UNIQUE CONSTRAINT, btree (user_id, account_data_type)
-* "account_data_stream_id" btree (user_id, stream_id)
 
 
 ## Table - account_data
