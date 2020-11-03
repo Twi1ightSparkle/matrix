@@ -76,6 +76,11 @@ def log_writer(room_id, room_alias, status, status_code, target, change_user, ol
     log.close()
 
 
+def clean_log_text(input_string):
+    "Removes newlines, semi colons and double quotes to make line work with CSV log file"
+    return str(input_string).replace("\n", "").replace(";", ":").replace("\"", "'")
+
+
 
 if __name__ == "__main__":
 
@@ -128,9 +133,9 @@ if __name__ == "__main__":
         # If error on GET, log it and move on to next room
         if not power_levels.status_code == 200:
             try:
-                content = str(power_levels.json()).replace("\n", "").replace(";", ":").replace("\"", "'")
+                content = clean_log_text(power_levels.json())
             except json.decoder.JSONDecodeError:
-                content = str(power_levels.content).replace("\n", "").replace(";", ":").replace("\"", "'")
+                content = clean_log_text(power_levels.content)
             log_writer(
                 room_id=room[1],
                 room_alias=room[0],
@@ -190,9 +195,9 @@ if __name__ == "__main__":
         # If error on PUT, log it and move on to next room
         if not update_status.status_code == 200:
             try:
-                content = str(update_status.json()).replace("\n", "").replace(";", ":").replace("\"", "'")
+                content = clean_log_text(update_status.json())
             except json.decoder.JSONDecodeError:
-                content = str(update_status.content).replace("\n", "").replace(";", ":").replace("\"", "'")
+                content = clean_log_text(update_status.content)
             log_writer(
                 room_id=room[1],
                 room_alias=room[0],
@@ -209,9 +214,9 @@ if __name__ == "__main__":
 
         # Log success
         try:
-            content = str(update_status.json()).replace("\n", "").replace(";", ":").replace("\"", "'")
+            content = clean_log_text(update_status.json())
         except json.decoder.JSONDecodeError:
-            content = str(update_status.content).replace("\n", "").replace(";", ":").replace("\"", "'")
+            content = clean_log_text(update_status.content)
         log_writer(
             room_id=room[1],
             room_alias=room[0],
