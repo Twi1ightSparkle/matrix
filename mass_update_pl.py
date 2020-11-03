@@ -23,14 +23,21 @@ minus_pl = 1
 
 # PostgreSQL query to get rooms to work with. Must return room_alias in column 0 and room_id in column 1
 rooms_query = """
-    SELECT
-        room_aliases.room_alias,
-        rooms.room_id
-    FROM
-        rooms
-        LEFT JOIN room_aliases ON rooms.room_id = room_aliases.room_id
-    WHERE
-        rooms.room_id = '!lkFcylzZFTWNDWlcjs:example.com'
+SELECT
+	room_aliases.room_alias,
+	rooms.room_id
+FROM
+	rooms
+	LEFT JOIN room_aliases ON rooms.room_id = room_aliases.room_id
+WHERE
+	rooms.room_id IN(
+        '!lkFcylzZFTWNDWlcjs:example.com',
+        '!KHUcTDHRrNwejHnIGg:example.com',
+        '!YWcIyLEsRcFvRSbPSa:example.com',
+        '!zlSszmILVApQRaMYwq:example.com',
+        '!OyYnKiAIjIanCGYvKr:example.com',
+        '!gepLfWxfWnQEsquDmL:example.com',
+    )
 """
 
 
