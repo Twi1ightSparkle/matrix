@@ -16,10 +16,12 @@ admin_token = "MDAxxxxxx"
 # User to promote in the rooms
 promote_user = "@bob:example.com"
 
-# Set power level for promote_user = admin_user - minus_pl
-# Must be 0 or higher
-# If this is 0, you will not be able to undo the change
+# Set power level for promote_user
+# admin_user - minus_pl. set_pl must be None
+# minus_pl must be 0 or higher. If this is 0, you will not be able to undo the change
 minus_pl = 1
+# Promote promote_user to this specific power level. minus_pl must be None
+set_pl = None
 
 # PostgreSQL query to get rooms to work with. Must return room_alias in column 0 and room_id in column 1
 rooms_query = """
@@ -91,6 +93,15 @@ def clean_log_text(input_string):
 
 if __name__ == "__main__":
 
+    # Test minus_pl and set_pl
+    if not minus_pl and not set_pl:
+        print("minus_pl and set_pl cannot both be None")
+        exit()
+    elif minus_pl and set_pl:
+        print("minus_pl and set_pl cannot both be a number")
+        exit()
+
+
     # Connect to database
     connection = psycopg2.connect(user=username, password=password, host=server, port=port, database=database, connect_timeout=3)
     cursor = connection.cursor()
@@ -161,16 +172,33 @@ if __name__ == "__main__":
         power_levels = power_levels.json()
 
 
-        # Get current PL for promote_user or default to 0 if it does not have any in the room
-        try:
-            old_pl = power_levels["users"][promote_user]
-        except KeyError:
-            old_pl = 0
+        # Get current PL for promote_user or set room default if it does not have any in the room
+        old_pl = power_levels.get("users", {}).get(promote_user, power_levels.get("users_default"))
 
 
         # Get PL for admin_user and append promote_user to state event
-        admin_current_pl = power_levels["users"][admin_user]
-        new_pl = admin_current_pl - minus_pl
+        admin_current_pl = power_levels.get("users", {}).get(admin_user, "not_found")
+
+
+        # If admin_user is not found, log and move on to next room
+        if admin_current_pl == "not_found":
+            log_writer(
+                room_id=room[1],
+                room_alias=room[0],
+                status="admin_not_found",
+                status_code=None,
+                target=None,
+                change_user=promote_user,
+                old_pl=None,
+                new_pl=None,
+                content="Admin user not in room or m.room.power_levels missing users object"
+            )
+            continue
+
+        if minus_pl:
+            new_pl = admin_current_pl - minus_pl
+        elif set_pl:
+            new_pl = set_pl
         power_levels["users"][promote_user] = new_pl
 
 
@@ -188,7 +216,6 @@ if __name__ == "__main__":
                 content=None
             )
             continue
-
 
         # Send new state event to the room
         update_status = requests.request(
@@ -235,6 +262,7 @@ if __name__ == "__main__":
             new_pl=new_pl,
             content=content
         )
+
 
     # Log finished operation
     log_writer(
