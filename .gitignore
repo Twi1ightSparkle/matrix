@@ -1,3 +1,4 @@
 .DS_Store
 isitup/config.ini
-result.csv
+mass_update_pl.csv
+mass_update_pl_config.py
