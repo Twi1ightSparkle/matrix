@@ -28,7 +28,7 @@ def log_writer(room_id, room_alias, status, status_code, target, change_user, ol
     log = open(log_file_path, "a+")
 
     if csv_header:
-        log.write("time_stamp;room_id;room_alias;status;status_code;target;change_user;old_pl;new_pl;content\n")
+        log.write("Time Stamp;Room ID;Room Alias;Status;Status Code;Target URL;Promote User;Old PL;New PL;Content\n")
     log.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (
         str(time_stamp_short),
         str(room_id),
@@ -77,14 +77,14 @@ if __name__ == "__main__":
     else:
         content_dry_run = ""
     log_writer(
-        room_id=None,
-        room_alias=None,
+        room_id="",
+        room_alias="",
         status="new_operation",
-        status_code=None,
-        target=None,
-        change_user=None,
-        old_pl=None,
-        new_pl=None,
+        status_code="",
+        target="",
+        change_user="",
+        old_pl="",
+        new_pl="",
         content="New%s operation started. %s rooms to change" % (content_dry_run, len(rooms))
     )
 
@@ -101,14 +101,14 @@ if __name__ == "__main__":
         except AttributeError: # set_pl is not set
             print("One of minus_pl or new_pl must be uncommented in config. Exiting")
             log_writer(
-                room_id=None,
-                room_alias=None,
+                room_id="",
+                room_alias="",
                 status="pl_not_configured",
-                status_code=None,
-                target=None,
-                change_user=None,
-                old_pl=None,
-                new_pl=None,
+                status_code="",
+                target="",
+                change_user="",
+                old_pl="",
+                new_pl="",
                 content="One of minus_pl or set_pl must be uncommented in config. Cancelled operation"
             )
             exit()
@@ -150,8 +150,8 @@ if __name__ == "__main__":
                 status_code=power_levels.status_code,
                 target=target,
                 change_user=Config.promote_user,
-                old_pl=None,
-                new_pl=None,
+                old_pl="",
+                new_pl="",
                 content=content
             )
             continue
@@ -173,11 +173,11 @@ if __name__ == "__main__":
                 room_id=room[1],
                 room_alias=room[0],
                 status="admin_not_found",
-                status_code=None,
-                target=None,
+                status_code="",
+                target="",
                 change_user=Config.promote_user,
-                old_pl=None,
-                new_pl=None,
+                old_pl="",
+                new_pl="",
                 content="Admin user (%s) not in room or m.room.power_levels missing 'users' object" % Config.admin_user
             )
             continue
@@ -202,28 +202,28 @@ if __name__ == "__main__":
                 room_id=room[1],
                 room_alias=room[0],
                 status="unchanged",
-                status_code=None,
-                target=None,
+                status_code="",
+                target="",
                 change_user=Config.promote_user,
                 old_pl=old_pl,
-                new_pl=None,
-                content=None
+                new_pl="",
+                content=""
             )
             continue
 
 
-        # If trying to change to higher than admins PL, log and continue to next room
-        if old_pl > admin_current_pl:
+        # If trying to change to higher than or equal to admins PL, log and continue to next room
+        if old_pl >= admin_current_pl:
             log_writer(
                 room_id=room[1],
                 room_alias=room[0],
                 status="pl_too_high",
-                status_code=None,
-                target=None,
+                status_code="",
+                target="",
                 change_user=Config.promote_user,
                 old_pl=old_pl,
                 new_pl=new_pl,
-                content="You cannot change %s to a higher PL than %s (PL %s)" %(Config.promote_user, Config.admin_user, admin_current_pl)
+                content="You cannot make changes to %s because it's current PL is equal to or higher than %s (PL %s)" %(Config.promote_user, Config.admin_user, admin_current_pl)
             )
             continue
 
@@ -256,8 +256,8 @@ if __name__ == "__main__":
                 status_code=update_status.status_code,
                 target=target,
                 change_user=Config.promote_user,
-                old_pl=None,
-                new_pl=None,
+                old_pl="",
+                new_pl="",
                 content=content
             )
             continue
@@ -276,7 +276,7 @@ if __name__ == "__main__":
             room_alias=room[0],
             status="success",
             status_code=update_status.status_code,
-            target=None,
+            target="",
             change_user=Config.promote_user,
             old_pl=old_pl,
             new_pl=new_pl,
@@ -290,13 +290,13 @@ if __name__ == "__main__":
     else:
         content_dry_run = ""
     log_writer(
-        room_id=None,
-        room_alias=None,
+        room_id="",
+        room_alias="",
         status="finished_operation",
-        status_code=None,
-        target=None,
-        change_user=None,
-        old_pl=None,
-        new_pl=None,
+        status_code="",
+        target="",
+        change_user="",
+        old_pl="",
+        new_pl="",
         content="%sOperation finished" %content_dry_run
     )
