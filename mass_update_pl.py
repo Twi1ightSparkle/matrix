@@ -1,48 +1,3 @@
-# Config
-homeserver_delegated_url = "https://matrix.example.com"
-homeserver_url = "example.com"
-
-# Datbase config
-server = "127.0.0.1"
-port = 5431
-database = "synapse"
-username = "synapse"
-password = "V3ryS3cret"
-
-# User to make change with, this user should be admin in all rooms returned by rooms_query
-admin_user = "@alice:example.comm"
-admin_token = "MDAxxxxxx"
-
-# User to promote in the rooms
-promote_user = "@bob:example.com"
-
-# Set power level for promote_user
-# admin_user - minus_pl. set_pl must be None
-# minus_pl must be 0 or higher. If this is 0, you will not be able to undo the change
-minus_pl = 1
-# Promote promote_user to this specific power level. minus_pl must be None
-set_pl = None
-
-# PostgreSQL query to get rooms to work with. Must return room_alias in column 0 and room_id in column 1
-rooms_query = """
-SELECT
-	room_aliases.room_alias,
-	rooms.room_id
-FROM
-	rooms
-	LEFT JOIN room_aliases ON rooms.room_id = room_aliases.room_id
-WHERE
-	rooms.room_id IN(
-        '!lkFcylzZFTWNDWlcjs:example.com',
-        '!KHUcTDHRrNwejHnIGg:example.com',
-        '!YWcIyLEsRcFvRSbPSa:example.com',
-        '!zlSszmILVApQRaMYwq:example.com',
-        '!OyYnKiAIjIanCGYvKr:example.com',
-        '!gepLfWxfWnQEsquDmL:example.com',
-    )
-"""
-
-
 # Import modules
 from datetime import datetime
 import json
@@ -52,8 +7,12 @@ import psycopg2
 import requests
 
 
+# Import config
+from mass_update_pl_config import Config
+
+
 # Log to this file. Default is result.csv in the same directory as this script file
-log_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "result.csv")
+log_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "mass_update_pl.csv")
 
 
 def log_writer(room_id, room_alias, status, status_code, target, change_user, old_pl, new_pl, content):
@@ -93,28 +52,30 @@ def clean_log_text(input_string):
 
 if __name__ == "__main__":
 
-    # Test minus_pl and set_pl
-    if not minus_pl and not set_pl:
-        print("minus_pl and set_pl cannot both be None")
-        exit()
-    elif minus_pl and set_pl:
-        print("minus_pl and set_pl cannot both be a number")
-        exit()
-
-
     # Connect to database
-    connection = psycopg2.connect(user=username, password=password, host=server, port=port, database=database, connect_timeout=3)
+    connection = psycopg2.connect(
+        user=Config.username,
+        password=Config.password,
+        host=Config.server,
+        port=Config.port,
+        database=Config.database,
+        connect_timeout=3
+    )
     cursor = connection.cursor()
 
     # Get list of rooms. Creates a list: [[room_alias, room_id], ...]
     rooms = []
-    cursor.execute(rooms_query)
+    cursor.execute(Config.rooms_query)
     mobile_records = cursor.fetchall() 
     for row in mobile_records:
         rooms.append(row)
 
 
     # Log new operation
+    if Config.dry_run:
+        content_dry_run = " dry run"
+    else:
+        content_dry_run = ""
     log_writer(
         room_id=None,
         room_alias=None,
@@ -124,18 +85,46 @@ if __name__ == "__main__":
         change_user=None,
         old_pl=None,
         new_pl=None,
-        content="New operation started. %s rooms to change" % len(rooms)
+        content="New%s operation started. %s rooms to change" % (content_dry_run, len(rooms))
     )
 
+
+    # Check if minus_pl or set_pl is set. This is done with try/except because
+    # both can have value 0, which is False when doing "if minus_pl:"
+    minus_pl_set = False
+    set_pl_set = False
+    try:
+        Config.minus_pl
+    except AttributeError: # minus_pl is not set
+        try:
+            Config.set_pl
+        except AttributeError: # set_pl is not set
+            print("One of minus_pl or new_pl must be uncommented in config. Exiting")
+            log_writer(
+                room_id=None,
+                room_alias=None,
+                status="pl_not_configured",
+                status_code=None,
+                target=None,
+                change_user=None,
+                old_pl=None,
+                new_pl=None,
+                content="One of minus_pl or set_pl must be uncommented in config. Cancelled operation"
+            )
+            exit()
+        else: # set_pl is set
+            set_pl_set = True
+    else: # minus_pl is set
+            minus_pl_set = True
 
     # Loop over the rooms
     pbar = progressbar.ProgressBar(maxval=len(rooms)).start()
     for room in pbar(rooms):
 
         # Request URL and headers
-        target = homeserver_delegated_url + "/_matrix/client/r0/rooms/" + room[1] + "/state/m.room.power_levels"
+        target = Config.homeserver_delegated_url + "/_matrix/client/r0/rooms/" + room[1] + "/state/m.room.power_levels"
         headers = {
-            "Authorization": "Bearer %s" % admin_token,
+            "Authorization": "Bearer %s" % Config.admin_token,
             "Content-Type": "application/json"
         }
 
@@ -160,7 +149,7 @@ if __name__ == "__main__":
                 status="get_error",
                 status_code=power_levels.status_code,
                 target=target,
-                change_user=promote_user,
+                change_user=Config.promote_user,
                 old_pl=None,
                 new_pl=None,
                 content=content
@@ -171,13 +160,11 @@ if __name__ == "__main__":
         # Get the power_levels state event from requests data
         power_levels = power_levels.json()
 
-
         # Get current PL for promote_user or set room default if it does not have any in the room
-        old_pl = power_levels.get("users", {}).get(promote_user, power_levels.get("users_default"))
-
+        old_pl = power_levels.get("users", {}).get(Config.promote_user, power_levels.get("users_default"))
 
         # Get PL for admin_user and append promote_user to state event
-        admin_current_pl = power_levels.get("users", {}).get(admin_user, "not_found")
+        admin_current_pl = power_levels.get("users", {}).get(Config.admin_user, "not_found")
 
 
         # If admin_user is not found, log and move on to next room
@@ -188,18 +175,25 @@ if __name__ == "__main__":
                 status="admin_not_found",
                 status_code=None,
                 target=None,
-                change_user=promote_user,
+                change_user=Config.promote_user,
                 old_pl=None,
                 new_pl=None,
-                content="Admin user not in room or m.room.power_levels missing users object"
+                content="Admin user (%s) not in room or m.room.power_levels missing 'users' object" % Config.admin_user
             )
             continue
 
-        if minus_pl:
-            new_pl = admin_current_pl - minus_pl
-        elif set_pl:
-            new_pl = set_pl
-        power_levels["users"][promote_user] = new_pl
+
+        # Set new power level for promote_user
+        if set_pl_set:
+            new_pl = Config.set_pl
+        elif minus_pl_set:
+            new_pl = admin_current_pl - Config.minus_pl
+        
+        # Remove promote_user from state event if it will be changed to default PL
+        if new_pl == power_levels.get("users_default") and power_levels["users"].get(Config.promote_user):
+            del power_levels["users"][Config.promote_user]
+        else:
+            power_levels["users"][Config.promote_user] = new_pl
 
 
         # Log and move on to next room if no change will be made
@@ -210,20 +204,43 @@ if __name__ == "__main__":
                 status="unchanged",
                 status_code=None,
                 target=None,
-                change_user=promote_user,
+                change_user=Config.promote_user,
                 old_pl=old_pl,
                 new_pl=None,
                 content=None
             )
             continue
 
+
+        # If trying to change to higher than admins PL, log and continue to next room
+        if old_pl > admin_current_pl:
+            log_writer(
+                room_id=room[1],
+                room_alias=room[0],
+                status="pl_too_high",
+                status_code=None,
+                target=None,
+                change_user=Config.promote_user,
+                old_pl=old_pl,
+                new_pl=new_pl,
+                content="You cannot change %s to a higher PL than %s (PL %s)" %(Config.promote_user, Config.admin_user, admin_current_pl)
+            )
+            continue
+
+
         # Send new state event to the room
-        update_status = requests.request(
-            method="PUT",
-            url=target,
-            headers=headers,
-            data=json.dumps(power_levels)
-        )
+        if not Config.dry_run:
+            update_status = requests.request(
+                method="PUT",
+                url=target,
+                headers=headers,
+                data=json.dumps(power_levels)
+            )
+        else:
+            # Create dummy update_status object
+            class update_status():
+                status_code = 200
+                content = "{'event_id':'$dry_run'}"
 
 
         # If error on PUT, log it and move on to next room
@@ -238,7 +255,7 @@ if __name__ == "__main__":
                 status="put_error",
                 status_code=update_status.status_code,
                 target=target,
-                change_user=promote_user,
+                change_user=Config.promote_user,
                 old_pl=None,
                 new_pl=None,
                 content=content
@@ -251,13 +268,16 @@ if __name__ == "__main__":
             content = clean_log_text(update_status.json())
         except json.decoder.JSONDecodeError:
             content = clean_log_text(update_status.content)
+        except AttributeError:
+            # This will only occur on dry run, because the dummy update_status object does not have a .json() attribute
+            content = clean_log_text(update_status.content)
         log_writer(
             room_id=room[1],
             room_alias=room[0],
             status="success",
             status_code=update_status.status_code,
             target=None,
-            change_user=promote_user,
+            change_user=Config.promote_user,
             old_pl=old_pl,
             new_pl=new_pl,
             content=content
@@ -265,6 +285,10 @@ if __name__ == "__main__":
 
 
     # Log finished operation
+    if Config.dry_run:
+        content_dry_run = "Dry run "
+    else:
+        content_dry_run = ""
     log_writer(
         room_id=None,
         room_alias=None,
@@ -274,5 +298,5 @@ if __name__ == "__main__":
         change_user=None,
         old_pl=None,
         new_pl=None,
-        content="Operation finished"
+        content="%sOperation finished" %content_dry_run
     )
