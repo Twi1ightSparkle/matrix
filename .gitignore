@@ -3,3 +3,5 @@ __pycache__
 isitup/config.ini
 mass_update_pl.csv
 mass_update_pl_config.py
+mass_update_pl_config_*.py
+mass_update_pl_dry_run_log.csv
