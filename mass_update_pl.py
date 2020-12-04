@@ -2,9 +2,10 @@
 from datetime import datetime
 import json
 import os
-import progressbar
 import psycopg2
 import requests
+import time
+from tqdm import tqdm
 
 
 # Import config
@@ -15,7 +16,7 @@ from mass_update_pl_config import Config
 log_file_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "mass_update_pl.csv")
 
 
-def log_writer(room_id, room_alias, status, status_code, target, change_user, old_pl, new_pl, content):
+def log_writer(room_id, room_alias, status, pl_status_code, in_status_code, target, change_user, old_pl, new_pl, pl_content, in_content):
     """Write timestamp and message to logfile"""
     time_stamp = datetime.utcnow()
     time_stamp_short = time_stamp.strftime("%Y.%m.%dT%H.%M.%S.%fZ")
@@ -28,18 +29,20 @@ def log_writer(room_id, room_alias, status, status_code, target, change_user, ol
     log = open(log_file_path, "a+")
 
     if csv_header:
-        log.write("Time Stamp;Room ID;Room Alias;Status;Status Code;Target URL;Promote User;Old PL;New PL;Content\n")
-    log.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (
+        log.write("Time Stamp;Room ID;Room Alias;Status;PL Status Code;Invite Status Code;Target URL;Promote User;Old PL;New PL;PL Content; Invite Content\n")
+    log.write("%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s;%s\n" % (
         str(time_stamp_short),
         str(room_id),
         str(room_alias),
         str(status),
-        str(status_code),
+        str(pl_status_code),
+        str(in_status_code),
         str(target),
         str(change_user),
         str(old_pl),
         str(new_pl),
-        str(content)
+        str(pl_content),
+        str(in_content)
     ))
     log.close()
 
@@ -51,6 +54,12 @@ def clean_log_text(input_string):
 
 
 if __name__ == "__main__":
+
+    # Confirm write
+    if not Config.dry_run:
+        write_confirmation = input("Dry run disabled, proceed with write operation [y/N]: ")
+        if not write_confirmation == "y":
+            exit()
 
     # Connect to database
     connection = psycopg2.connect(
@@ -70,7 +79,6 @@ if __name__ == "__main__":
     for row in mobile_records:
         rooms.append(row)
 
-
     # Log new operation
     if Config.dry_run:
         content_dry_run = " dry run"
@@ -80,14 +88,15 @@ if __name__ == "__main__":
         room_id="",
         room_alias="",
         status="new_operation",
-        status_code="",
+        pl_status_code="",
+        in_status_code="",
         target="",
         change_user="",
         old_pl="",
         new_pl="",
-        content="New%s operation started. %s rooms to change" % (content_dry_run, len(rooms))
+        pl_content="New%s operation started. %s rooms to change" % (content_dry_run, len(rooms)),
+        in_content=""
     )
-
 
     # Check if minus_pl or set_pl is set. This is done with try/except because
     # both can have value 0, which is False when doing "if minus_pl:"
@@ -104,12 +113,14 @@ if __name__ == "__main__":
                 room_id="",
                 room_alias="",
                 status="pl_not_configured",
-                status_code="",
+                pl_status_code="",
+                in_status_code="",
                 target="",
                 change_user="",
                 old_pl="",
                 new_pl="",
-                content="One of minus_pl or set_pl must be uncommented in config. Cancelled operation"
+                pl_content="One of minus_pl or set_pl must be uncommented in config. Cancelled operation",
+                in_content=""
             )
             exit()
         else: # set_pl is set
@@ -117,44 +128,137 @@ if __name__ == "__main__":
     else: # minus_pl is set
             minus_pl_set = True
 
-    # Loop over the rooms
-    pbar = progressbar.ProgressBar(maxval=len(rooms)).start()
-    for room in pbar(rooms):
+    # Rest headers
+    headers = {
+        "Authorization": "Bearer %s" % Config.admin_token,
+        "Content-Type": "application/json"
+    }
 
-        # Request URL and headers
-        target = Config.homeserver_delegated_url + "/_matrix/client/r0/rooms/" + room[1] + "/state/m.room.power_levels"
-        headers = {
-            "Authorization": "Bearer %s" % Config.admin_token,
-            "Content-Type": "application/json"
-        }
+    # Get list of rooms admin_user is in
+    admin_rooms = requests.request(
+        method="GET",
+        url=Config.homeserver_delegated_url + "/_matrix/client/r0/joined_rooms",
+        headers=headers
+    )
+
+    # If error on GET rooms, log it and exit
+    if not admin_rooms.status_code == 200:
+        try:
+            admin_rooms_content = clean_log_text(admin_rooms.json())
+        except json.decoder.JSONDecodeError:
+            admin_rooms_content = clean_log_text(admin_rooms.content)
+        log_writer(
+            room_id=room[1],
+            room_alias=room[0],
+            status="admin_rooms_get_error",
+            pl_status_code=admin_rooms.status_code,
+            in_status_code="",
+            target=pl_target,
+            change_user=Config.promote_user,
+            old_pl="",
+            new_pl="",
+            pl_content=admin_rooms_content,
+            in_content=""
+        )
+        exit()
+
+    admin_rooms = admin_rooms.json()["joined_rooms"]
+
+
+    if Config.invite and not Config.dry_run:
+        print("Invite is enabled. To reduce server load, longer delay is set. Estimated runtime, up to %s minutes" %(len(rooms)))
+
+
+    # Loop over the rooms
+    for room in tqdm(rooms):
+
+        # Check that admin_user is in room
+        if not room[1] in admin_rooms:
+            log_writer(
+                room_id=room[1],
+                room_alias=room[0],
+                status="admin_not_in_room",
+                pl_status_code="",
+                in_status_code="",
+                target="",
+                change_user="",
+                old_pl="",
+                new_pl="",
+                pl_content="",
+                in_content=""
+            )
+            continue
+
+
+        # REST URLs and headers
+        pl_target = Config.homeserver_delegated_url + "/_matrix/client/r0/rooms/" + room[1] + "/state/m.room.power_levels"
+        members_target = Config.homeserver_delegated_url + "/_matrix/client/r0/rooms/" + room[1] + "/joined_members"
+        invite_target = Config.homeserver_delegated_url + "/_matrix/client/r0/rooms/" + room[1] + "/invite"
 
 
         # Get current m.room.power_levels
         power_levels = requests.request(
             method="GET",
-            url=target,
+            url=pl_target,
             headers=headers
         )
 
-
-        # If error on GET, log it and move on to next room
+        # If error on GET PL, log it and move on to next room
         if not power_levels.status_code == 200:
             try:
-                content = clean_log_text(power_levels.json())
+                pl_content = clean_log_text(power_levels.json())
             except json.decoder.JSONDecodeError:
-                content = clean_log_text(power_levels.content)
+                pl_content = clean_log_text(power_levels.content)
             log_writer(
                 room_id=room[1],
                 room_alias=room[0],
-                status="get_error",
-                status_code=power_levels.status_code,
-                target=target,
+                status="pl_get_error",
+                pl_status_code=power_levels.status_code,
+                in_status_code="",
+                target=pl_target,
                 change_user=Config.promote_user,
                 old_pl="",
                 new_pl="",
-                content=content
+                pl_content=pl_content,
+                in_content=""
             )
             continue
+
+
+        # Get current room members if enabled
+        if Config.invite:
+            members = requests.request(
+                method="GET",
+                url=members_target,
+                headers=headers
+            )
+
+            # If error on GET members, log it and move on to next room
+            if not members.status_code == 200:
+                try:
+                    member_content = clean_log_text(members.json())
+                except json.decoder.JSONDecodeError:
+                    member_content = clean_log_text(members.content)
+                log_writer(
+                    room_id=room[1],
+                    room_alias=room[0],
+                    status="members_get_error",
+                    pl_status_code="",
+                    in_status_code=members.status_code,
+                    target=members_target,
+                    change_user=Config.promote_user,
+                    old_pl="",
+                    new_pl="",
+                    pl_content=member_content,
+                    in_content=""
+                )
+                continue
+
+            # Check if promote_user is in room already
+            if Config.promote_user in members.json()["joined"]:
+                invite_user = False
+            else:
+                invite_user = True
 
 
         # Get the power_levels state event from requests data
@@ -173,12 +277,14 @@ if __name__ == "__main__":
                 room_id=room[1],
                 room_alias=room[0],
                 status="admin_not_found",
-                status_code="",
+                pl_status_code="",
+                in_status_code="",
                 target="",
                 change_user=Config.promote_user,
                 old_pl="",
                 new_pl="",
-                content="Admin user (%s) not in room or m.room.power_levels missing 'users' object" % Config.admin_user
+                pl_content="Admin user (%s) not in room or m.room.power_levels missing 'users' object" % Config.admin_user,
+                in_content=""
             )
             continue
 
@@ -188,7 +294,7 @@ if __name__ == "__main__":
             new_pl = Config.set_pl
         elif minus_pl_set:
             new_pl = admin_current_pl - Config.minus_pl
-        
+
         # Remove promote_user from state event if it will be changed to default PL
         if new_pl == power_levels.get("users_default") and power_levels["users"].get(Config.promote_user):
             del power_levels["users"][Config.promote_user]
@@ -201,13 +307,15 @@ if __name__ == "__main__":
             log_writer(
                 room_id=room[1],
                 room_alias=room[0],
-                status="unchanged",
-                status_code="",
+                status="pl_unchanged",
+                pl_status_code="",
+                in_status_code="",
                 target="",
                 change_user=Config.promote_user,
                 old_pl=old_pl,
                 new_pl="",
-                content=""
+                pl_content="",
+                in_content=""
             )
             continue
 
@@ -218,70 +326,149 @@ if __name__ == "__main__":
                 room_id=room[1],
                 room_alias=room[0],
                 status="pl_too_high",
-                status_code="",
+                pl_status_code="",
+                in_status_code="",
                 target="",
                 change_user=Config.promote_user,
                 old_pl=old_pl,
                 new_pl=new_pl,
-                content="You cannot make changes to %s because it's current PL is equal to or higher than %s (PL %s)" %(Config.promote_user, Config.admin_user, admin_current_pl)
+                pl_content="You cannot make changes to %s because it's current PL is equal to or higher than %s (PL %s)" %(Config.promote_user, Config.admin_user, admin_current_pl),
+                in_content=""
             )
             continue
 
 
-        # Send new state event to the room
+        # Make live changes if not dry run
         if not Config.dry_run:
+            # Invite user to room if needed
+            if Config.invite and invite_user:
+                invite_status = requests.request(
+                    method='POST',
+                    url=invite_target,
+                    headers=headers,
+                    data=json.dumps({"user_id": Config.promote_user})
+                )
+
+            # Send updated power_levels state event to the room
             update_status = requests.request(
                 method="PUT",
-                url=target,
+                url=pl_target,
                 headers=headers,
                 data=json.dumps(power_levels)
             )
         else:
-            # Create dummy update_status object
+            # Create dummy status objects so logging works on dry run
+            class invite_status():
+                status_code = 200
+                content = "{'event_id':'$dry_run'}"
             class update_status():
                 status_code = 200
                 content = "{'event_id':'$dry_run'}"
 
-
-        # If error on PUT, log it and move on to next room
-        if not update_status.status_code == 200:
+        # If error on invite, log it
+        if invite_user and not invite_status.status_code == 200:
             try:
-                content = clean_log_text(update_status.json())
+                in_content = clean_log_text(invite_status.json())
             except json.decoder.JSONDecodeError:
-                content = clean_log_text(update_status.content)
+                in_content = clean_log_text(invite_status.content)
             log_writer(
                 room_id=room[1],
                 room_alias=room[0],
-                status="put_error",
-                status_code=update_status.status_code,
-                target=target,
+                status="invite_error",
+                pl_status_code="",
+                in_status_code=invite_status.status_code,
+                target=invite_target,
                 change_user=Config.promote_user,
                 old_pl="",
                 new_pl="",
-                content=content
+                pl_content="",
+                in_content=in_content
             )
+
+
+        # If error on PL PUT, log it
+        if not update_status.status_code == 200:
+            try:
+                pl_content = clean_log_text(update_status.json())
+            except json.decoder.JSONDecodeError:
+                pl_content = clean_log_text(update_status.content)
+            log_writer(
+                room_id=room[1],
+                room_alias=room[0],
+                status="pl_put_error",
+                pl_status_code=update_status.status_code,
+                in_status_code="",
+                target=pl_target,
+                change_user=Config.promote_user,
+                old_pl="",
+                new_pl="",
+                pl_content=pl_content,
+                in_content=""
+            )
+
+        # Skip success logging of wither PUT failed
+        if not update_status.status_code == 200 or (invite_user and not invite_status.status_code == 200):
             continue
 
 
         # Log success
+
+        # Get PL write content
         try:
-            content = clean_log_text(update_status.json())
+            pl_content = clean_log_text(update_status.json())
         except json.decoder.JSONDecodeError:
-            content = clean_log_text(update_status.content)
+            pl_content = clean_log_text(update_status.content)
         except AttributeError:
             # This will only occur on dry run, because the dummy update_status object does not have a .json() attribute
-            content = clean_log_text(update_status.content)
-        log_writer(
-            room_id=room[1],
-            room_alias=room[0],
-            status="success",
-            status_code=update_status.status_code,
-            target="",
-            change_user=Config.promote_user,
-            old_pl=old_pl,
-            new_pl=new_pl,
-            content=content
-        )
+            pl_content = clean_log_text(update_status.content)
+
+        # If invite is enabled, get invite put content, then log both PL and invite success
+        if Config.invite and invite_user:
+            try:
+                in_content = clean_log_text(invite_status.json())
+            except json.decoder.JSONDecodeError:
+                in_content = clean_log_text(invite_status.content)
+            except AttributeError:
+                # This will only occur on dry run, because the dummy invite_status object does not have a .json() attribute
+                in_content = clean_log_text(invite_status.content)
+
+            log_writer(
+                room_id=room[1],
+                room_alias=room[0],
+                status="success",
+                pl_status_code=update_status.status_code,
+                in_status_code=invite_status.status_code,
+                target="",
+                change_user=Config.promote_user,
+                old_pl=old_pl,
+                new_pl=new_pl,
+                pl_content=pl_content,
+                in_content=in_content
+            )
+
+        # If invite is disabled, log only PL write content
+        else:
+            log_writer(
+                room_id=room[1],
+                room_alias=room[0],
+                status="success",
+                pl_status_code=update_status.status_code,
+                in_status_code="-",
+                target="",
+                change_user=Config.promote_user,
+                old_pl=old_pl,
+                new_pl=new_pl,
+                pl_content=pl_content,
+                in_content="-"
+            )
+
+
+        # Add some delay to not get ratelimited when writing to the server
+        if not Config.dry_run:
+            if Config.invite and invite_user:
+                time.sleep(60)
+            else:
+                time.sleep(1)
 
 
     # Log finished operation
@@ -293,10 +480,12 @@ if __name__ == "__main__":
         room_id="",
         room_alias="",
         status="finished_operation",
-        status_code="",
+        pl_status_code="",
+        in_status_code="",
         target="",
         change_user="",
         old_pl="",
         new_pl="",
-        content="%sOperation finished" %content_dry_run
+        pl_content="%sOperation finished" %content_dry_run,
+        in_content=""
     )
