@@ -59,7 +59,7 @@ if __name__ == "__main__":
 
             # Send a message to the old room
             message_url = "%s/_matrix/client/r0/rooms/%s/send/m.room.message" %(Config.homeserver_delegated_url, room_id_safe)
-            data = {"msgtype": "m.text", "body": Config.message_template(room_id, room_alias)}
+            data = {"msgtype": "m.text", "body": Config.message_template(upgrade_result["replacement_room"], room_alias)}
             logging.debug("message_url: %s - data: %s" %(message_url, data))
             try:
                 message_result = requests.request(
