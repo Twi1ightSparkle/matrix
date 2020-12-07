@@ -37,6 +37,22 @@ class Config():
     # The log will contain response code 200 and a dummy event ID
     dry_run = True
 
+    # Format ["#primaryRoomAlias:localhost", "!roomID:localhost"],
+    # Uncomment one of roomlist or rooms_query. If room_list is uncommented, rooms_query will be ignored
+    room_list = [
+        ["#room0:example.com", "!rCjhWzWtIAoAPmzKuQ:example.com"],
+        ["#room1:example.com", "!BjjosTZswnbWcqaEJJ:example.com"],
+        ["#room2:example.com", "!LQmdtmUtMLEBAGvMQW:example.com"],
+        ["#room3:example.com", "!jJHFQJekwMQgZhMqKa:example.com"],
+        ["#room4:example.com", "!DQzQAXbRYIwAMCtbCu:example.com"],
+        ["#room5:example.com", "!xOuGeTUOHHITrvdcyD:example.com"],
+        ["#room6:example.com", "!UANpAeMRFrwHNlqjxC:example.com"],
+        ["#room7:example.com", "!XCLYvAajKdRukUsIph:example.com"],
+        ["#room8:example.com", "!PTTqFpUfhkMpSYeLLQ:example.com"],
+        ["#room9:example.com", "!YEOvNWPlmnvmvkFJVP:example.com"],
+    ]
+
+
     # PostgreSQL query to get rooms to work with. Must return room_alias in column 0 and room_id in column 1
     rooms_query = """
         SELECT

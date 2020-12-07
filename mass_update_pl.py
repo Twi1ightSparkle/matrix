@@ -61,23 +61,26 @@ if __name__ == "__main__":
         if not write_confirmation == "y":
             exit()
 
-    # Connect to database
-    connection = psycopg2.connect(
-        user=Config.username,
-        password=Config.password,
-        host=Config.server,
-        port=Config.port,
-        database=Config.database,
-        connect_timeout=3
-    )
-    cursor = connection.cursor()
+    try:
+        rooms = Config.room_list
+    except NameError:
+        # Connect to database
+        connection = psycopg2.connect(
+            user=Config.username,
+            password=Config.password,
+            host=Config.server,
+            port=Config.port,
+            database=Config.database,
+            connect_timeout=3
+        )
+        cursor = connection.cursor()
 
-    # Get list of rooms. Creates a list: [[room_alias, room_id], ...]
-    rooms = []
-    cursor.execute(Config.rooms_query)
-    mobile_records = cursor.fetchall() 
-    for row in mobile_records:
-        rooms.append(row)
+        # Get list of rooms. Creates a list: [[room_alias, room_id], ...]
+        rooms = []
+        cursor.execute(Config.rooms_query)
+        mobile_records = cursor.fetchall()
+        for row in mobile_records:
+            rooms.append(row)
 
     # Log new operation
     if Config.dry_run:
@@ -468,7 +471,7 @@ if __name__ == "__main__":
             if Config.invite and invite_user:
                 time.sleep(60)
             else:
-                time.sleep(1)
+                time.sleep(10)
 
 
     # Log finished operation
