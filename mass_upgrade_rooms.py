@@ -29,7 +29,7 @@ if __name__ == "__main__":
     # Loop over all rooms
     logging.debug("Config.rooms: %s" %Config.rooms)
     for room in tqdm(Config.rooms):
-        room_id, room_alias = room
+        room_alias, room_id = room
 
         # Clean Room ID
         room_id_safe = room_id.replace("!", "%21").replace(":", "%3A")
