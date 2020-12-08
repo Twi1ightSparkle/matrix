@@ -19,12 +19,10 @@ if __name__ == "__main__":
     )
 
     # Headers to sent to the rest API
-    url = "%s/_matrix/client/r0/createRoom" % Config.homeserver_delegated_url
     headers = {
         "Authorization": "Bearer %s" % Config.admin_token,
         "Content-Type": "application/json"
     }
-    logging.debug("url: %s" % url)
 
     # Loop over all rooms
     logging.debug("Config.rooms: %s" %Config.rooms)
@@ -35,11 +33,42 @@ if __name__ == "__main__":
         room_id_safe = room_id.replace("!", "%21").replace(":", "%3A")
         logging.debug("room_id: %s" %room_id)
 
+        # Check current room version
+        state_url = "%s/_matrix/client/r0/rooms/%s/state/m.room.create" %(Config.homeserver_delegated_url, room_id_safe)
+        logging.debug("state_url: %s" % state_url)
+        try:
+            m_room_create = requests.request(
+                method="GET",
+                url=state_url,
+                headers=headers
+            )
+        except requests.exceptions.ConnectionError as err:
+            logging.error("Unable to get current state for %s - %s" % (room_id, err))
+            continue
+
+        # If getting room state was successful
+        if m_room_create.status_code == 200:
+            m_room_create = m_room_create.json()
+            logging.debug("m_room_create: %s" % m_room_create)
+            # Skip to next room if no upgrade is needed
+            if int(m_room_create["room_version"]) >= Config.new_room_version:
+                logging.info("Skipping room with ID %s and alias %s. Already room version %s" % (room_id, room_alias, str(Config.new_room_version)))
+                continue
+        else:
+            try: # Convert result to a dictionary
+                m_room_create = m_room_create.json()
+            except json.decoder.JSONDecodeError as err: # If not JSON
+                logging.error("%s - %s - %s" % (room_id, room_alias, err))
+            else: # If JSON
+                m_room_create["room_id"] = room_id
+                m_room_create["room_alias"] = room_alias
+                logging.error(m_room_create)
+
+
+        # Upgrade the room
         upgrade_url = "%s/_matrix/client/r0/rooms/%s/upgrade" %(Config.homeserver_delegated_url, room_id_safe)
         data = {"new_version": str(Config.new_room_version)}
         logging.debug("upgrade_url: %s - data: %s" % (upgrade_url, data))
-
-        # Upgrade the room
         try:
             upgrade_result = requests.request(
                 method="POST",
