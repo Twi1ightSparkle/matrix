@@ -63,7 +63,7 @@ if __name__ == "__main__":
 
     try:
         rooms = Config.room_list
-    except NameError:
+    except AttributeError:
         # Connect to database
         connection = psycopg2.connect(
             user=Config.username,
